@@ -91,7 +91,7 @@ const City = () => {
 
   return (
     <div className="city city-container">
-      <h3>Manage Cities</h3>
+      {/* <h3>Manage Cities</h3> */}
         <form onSubmit={handleSubmit} className="city-form">
           <div className="mb-3">
             <label for="exampleInputEmail1" className="form-label">City</label>

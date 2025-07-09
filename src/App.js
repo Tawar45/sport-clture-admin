@@ -8,6 +8,13 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import City from './components/city/city'; // Create this file
 import Games from './components/games/games'; // Create this file
+import Ground from './components/ground/ground'; // Create this file
+import Vendor from './components/vendor/vendor';
+import EditVendor from './components/vendor/edit-vendor';
+import User from './components/user/user';
+import EditUser from './components/user/edit-user';
+import CourtList from './components/court/List/courtlist';
+import AddCourt from './components/court/Add/addcourt';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedLayout({ children }) {
@@ -65,7 +72,63 @@ function AppRoutes() {
           </ProtectedLayout>
         }
       />
-      {/* Default route */}
+      <Route
+        path="/vendor"
+        element={
+          <ProtectedLayout>
+            <Vendor />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/vendor/edit/:id"
+        element={
+          <ProtectedLayout>
+            <EditVendor />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/ground"
+        element={
+          <ProtectedLayout>
+            <Ground />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/user"
+        element={
+          <ProtectedLayout>
+            <User />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/user/edit/:id"
+        element={
+          <ProtectedLayout>
+            <EditUser />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/courtlist"
+        element={
+          <ProtectedLayout>
+            <CourtList />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/court/add"
+        element={
+          <ProtectedLayout>
+            <AddCourt />
+          </ProtectedLayout>
+        }
+      />
+        {/* Default route */}
       <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
     </Routes>
   );
