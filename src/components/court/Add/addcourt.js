@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import '../court.css';
 import { useAuth } from '../../../context/AuthContext';
-const API_URL = `${process.env.REACT_APP_API_URL}/api/ground`;
+import { useParams, useNavigate } from 'react-router-dom';
+const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const AddCourt = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [usertype, setUsertype] = useState(user.usertype);
   const [usertypeList, setUsertypeList] = useState('vendor');
-  const [groundId, setGroundId] = useState(null);
   const [grounds, setGrounds] = useState([]);
   const [vendors, setVendors] = useState([]);
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const AddCourt = () => {
     openTime: '',
     closeTime: '',
     price: '',
+    game_id: '', // <-- add this
   });
   const openTime = [
     '08:00',
@@ -62,12 +64,42 @@ const AddCourt = () => {
     'Saturday',
     'Sunday',
   ];
-  const [activeTab, setActiveTab] = useState('Monday');
 
+  const [activeTab, setActiveTab] = useState('Monday');
   const [courtId, setCourtId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
+  // New: Store selected slots per day
+  const [slotsPerDay, setSlotsPerDay] = useState(() => {
+    const initial = {};
+    day.forEach(d => { initial[d] = []; });
+    return initial;
+  });
+  const [games, setGames] = useState([]);
+
+  // Helper: Convert time string to minutes
+  const timeToMinutes = (t) => {
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + m;
+  };
+  // Helper: Convert minutes to time string
+  const minutesToTime = (min) => {
+    const h = String(Math.floor(min / 60)).padStart(2, '0');
+    const m = String(min % 60).padStart(2, '0');
+    return `${h}:${m}`;
+  };
+  // Generate 1-hour slots between open and close
+  const getSlots = (open, close) => {
+    if (!open || !close) return [];
+    let slots = [];
+    let start = timeToMinutes(open);
+    let end = timeToMinutes(close);
+    for (let t = start; t + 60 <= end; t += 60) {
+      slots.push(`${minutesToTime(t)} - ${minutesToTime(t + 60)}`);
+    }
+    return slots;
+  };
   // Status options
 // ✅ Fetch grounds on mount
   useEffect(() => {
@@ -78,9 +110,9 @@ const AddCourt = () => {
     try {
       let response;
       if (usertype === 'admin') {
-        response = await fetch(`${API_URL}/list`);
+        response = await fetch(`${API_URL}/ground/list`);
       } else {
-        response = await fetch(`${API_URL}/list/${user.id}`);
+        response = await fetch(`${API_URL}/ground/list/${user.id}`);
       }
       if (!response.ok) throw new Error('Failed to fetch grounds');
       const data = await response.json();
@@ -98,6 +130,26 @@ const AddCourt = () => {
       setVendors(data.users);
     } catch (error) {
       setError('Error fetching grounds');
+    }
+  };
+
+  useEffect(() => {
+    if (formData.ground_id) {
+      fetchGames(formData.ground_id);
+    } else {
+      setGames([]);
+    }
+  }, [formData.ground_id]);
+
+  const fetchGames = async (groundId) => {
+    try {
+      // Adjust the API endpoint as per your backend
+      const response = await fetch(`${API_URL}/games/list/${groundId}`);
+      if (!response.ok) throw new Error('Failed to fetch games');
+      const data = await response.json();
+      setGames(data.games || []);
+    } catch (error) {
+      setGames([]);
     }
   };
 
@@ -119,14 +171,20 @@ const AddCourt = () => {
     setLoading(true);
 
     try {
-      const submitData = new FormData();
-      // Append all form fields
-      const url = `${API_URL}/add`;
+      // Build the data object
+      const submitData = {
+        ...formData,
+        slotsPerDay, // include the slots per day selection
+      };
+      const url = `${API_URL}/court/add`;
       const method = 'POST';
 
       const response = await fetch(url, {
         method: method,
-        body: submitData
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submitData),
       });
 
       const data = await response.json();
@@ -144,10 +202,16 @@ const AddCourt = () => {
         price: '',
       });
       setCourtId(null);
+      setSlotsPerDay(() => {
+        const initial = {};
+        day.forEach(d => { initial[d] = []; });
+        return initial;
+      });
 
       // Refresh grounds list
       fetchGrounds();
       setUpdateMessage(`Court ${courtId ? 'updated' : 'added'} successfully!`);
+      setTimeout(() => navigate('/courtlist'), 1000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -163,7 +227,7 @@ const AddCourt = () => {
         <h2>{courtId ? 'Update Court' : 'Add New Court'}</h2>
         
         <form onSubmit={handleSubmit} className="ground-form">
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="name">Court Name:</label>
             <input
               type="text"
@@ -178,7 +242,7 @@ const AddCourt = () => {
             />
           </div>
 
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="ground_id">Ground:</label>
             <select
               id="ground_id"
@@ -188,7 +252,7 @@ const AddCourt = () => {
               className="form-control"
             >
               <option value="">-- Select Ground --</option>
-              {grounds.map(ground => (
+              {grounds?.map(ground => (
                 <option key={ground.id} value={ground.id}>
                   {ground.name}
                 </option>
@@ -196,7 +260,29 @@ const AddCourt = () => {
             </select>
           </div>
 
-          <div className="form-group">
+
+            <div className="col-md-6">
+              <label htmlFor="game_id">Game:</label>
+              <select
+                id="game_id"
+                name="game_id"
+                value={formData.game_id}
+                onChange={handleInputChange}
+                className="form-control"
+                required
+                disabled={games.length === 0}
+              >
+                <option value="">-- Select Game --</option>
+                {games.map(game => (
+                  <option key={game.id} value={game.id}>
+                    {game.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
+          <div className="col-md-6">
             <label htmlFor="openTime">Opening Time:</label>
             <select
               id="openTime"
@@ -214,17 +300,22 @@ const AddCourt = () => {
             </select>
           </div>
 
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="closeTime">Closing Time:</label>
             <select
               id="closeTime"
               name="closeTime"
               value={formData.closeTime}
               onChange={handleInputChange}
-                  className="form-control"
+              className="form-control"
+              disabled={!formData.openTime} // Disable if no openTime
             >
               <option value="">-- Select Closing Time --</option>
-              {closeTime.map(time => (
+              {/* Only show times at least 1 hour after openTime */}
+              {closeTime.filter(time => {
+                if (!formData.openTime) return true;
+                return timeToMinutes(time) - timeToMinutes(formData.openTime) >= 60;
+              }).map(time => (
                 <option key={time} value={time}>
                   {time}
                 </option>
@@ -232,7 +323,7 @@ const AddCourt = () => {
             </select>
           </div>
 
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="price">Price:</label>
             <input
               type="number"
@@ -244,22 +335,57 @@ const AddCourt = () => {
               placeholder="Enter price"
             />
           </div>
-          <ul className="nav nav-tabs">
+         <div className='col-md-12'>
+         <ul className="nav nav-tabs">
         {day.map((day) => (
           <li className="nav-item" key={day}>
             <button 
               className={`nav-link ${activeTab === day ? 'active' : ''}`}
-              onClick={() => setActiveTab(day)}
+              onClick={e => { e.preventDefault(); setActiveTab(day); }}
             >
               {day}
             </button>
           </li>
         ))}
       </ul>
+      </div> 
+
       <div className="tab-content p-3 border border-top-0">
         <div className="tab-pane fade show active">
           <h5>{activeTab}</h5>
-          <p>Content for {activeTab} goes here...</p>
+          {/* Show 1-hour slots with checkboxes for the active day */}
+          {formData.openTime && formData.closeTime ? (
+            <div className="slots-list">
+              {getSlots(formData.openTime, formData.closeTime).length === 0 ? (
+                <p>No available 1-hour slots for selected times.</p>
+              ) : (
+                getSlots(formData.openTime, formData.closeTime).map(slot => (
+                  <div key={slot} className="form-check">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id={`slot-${activeTab}-${slot}`}
+                      checked={slotsPerDay[activeTab]?.includes(slot) || false}
+                      onChange={e => {
+                        setSlotsPerDay(prev => {
+                          const updated = { ...prev };
+                          if (e.target.checked) {
+                            updated[activeTab] = [...(updated[activeTab] || []), slot];
+                          } else {
+                            updated[activeTab] = (updated[activeTab] || []).filter(s => s !== slot);
+                          }
+                          return updated;
+                        });
+                      }}
+                    />
+                    <label className="form-check-label" htmlFor={`slot-${activeTab}-${slot}`}>{slot}</label>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <p>Select Opening and Closing Time to set available slots.</p>
+          )}
         </div>
       </div>
 

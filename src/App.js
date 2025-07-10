@@ -15,6 +15,7 @@ import User from './components/user/user';
 import EditUser from './components/user/edit-user';
 import CourtList from './components/court/List/courtlist';
 import AddCourt from './components/court/Add/addcourt';
+import UpdateCourt from './components/court/update/updatecourt';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function ProtectedLayout({ children }) {
@@ -125,6 +126,14 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <AddCourt />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/court/edit/:id"
+        element={
+          <ProtectedLayout>
+            <UpdateCourt />
           </ProtectedLayout>
         }
       />

@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './ground.css';
 import { useAuth } from '../../context/AuthContext';
-const API_URL = `${process.env.REACT_APP_API_URL}/api/ground`;
+const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const Ground = () => {
   const { user } = useAuth();
   const [usertype, setUsertype] = useState(user.usertype);
   const [usertypeList, setUsertypeList] = useState('vendor');
+  const openTime = [
+    '08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'
+  ];
+  const closeTime = [...openTime];
+  
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -29,13 +34,21 @@ const Ground = () => {
   const [error, setError] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
   const [vendors, setVendors] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [games, setGames] = useState([]);
   // Status options
   const statusOptions = ['active', 'inactive', 'maintenance'];
 
+  const timeToMinutes = (t) => {
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + m;
+  };
   // ✅ Fetch grounds on mount
   useEffect(() => {
     fetchGrounds();
     fetchVendors();
+    fetchCities();
+    fetchGames();
   }, []);
   // ✅ Set vendor_id to user.id if not admin
 
@@ -52,9 +65,9 @@ const Ground = () => {
     try {
       let response;
       if (usertype === 'admin') {
-        response = await fetch(`${API_URL}/list`);
+        response = await fetch(`${API_URL}/ground/list`);
       } else {
-        response = await fetch(`${API_URL}/list/${user.id}`);
+        response = await fetch(`${API_URL}/ground/list/${user.id}`);
       }
       if (!response.ok) throw new Error('Failed to fetch grounds');
       const data = await response.json();
@@ -71,6 +84,28 @@ const Ground = () => {
       setVendors(data.users);
     } catch (error) {
       setError('Error fetching grounds');
+    }
+  };
+
+  const fetchCities = async () => {
+    try {
+      const response = await fetch(`${API_URL}/city/list`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      const data = await response.json();
+      setCities(data.cities || []);
+    } catch (error) {
+      setCities([]);
+    }
+  };
+
+  const fetchGames = async () => {
+    try {
+      const response = await fetch(`${API_URL}/games/list`);
+      if (!response.ok) throw new Error('Failed to fetch games');
+      const data = await response.json();
+      setGames(data.games || []);
+    } catch (error) {
+      setGames([]);
     }
   };
 
@@ -144,7 +179,7 @@ const Ground = () => {
         }
       });
 
-      const url = groundId ? `${API_URL}/update/${groundId}` : `${API_URL}/add`;
+      const url = groundId ? `${API_URL}/ground/update/${groundId}` : `${API_URL}/ground/add`;
       const method = groundId ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -262,32 +297,42 @@ const Ground = () => {
             />
           </div>
 
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="city">City:</label>
-            <input
-              type="text"
+            <select
               id="city"
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              required
               className="form-control"
-              placeholder="Enter city"
-            />
+              required
+            >
+              <option value="">-- Select City --</option>
+              {cities.map(city => (
+                <option key={city.id} value={city.name}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="game">Game:</label>
-            <input
-              type="text"
+            <select
               id="game"
               name="game"
               value={formData.game}
               onChange={handleInputChange}
-              required
               className="form-control"
-              placeholder="Enter game type"
-            />
+              required
+            >
+              <option value="">-- Select Game --</option>
+              {games.map(game => (
+                <option key={game.id} value={game.id}>
+                  {game.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
@@ -323,30 +368,45 @@ const Ground = () => {
           </div>
 
 
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="openTime">Opening Time:</label>
-            <input
-              type="text"
+            <select
               id="openTime"
               name="openTime"
               value={formData.openTime}
               onChange={handleInputChange}
-              required
               className="form-control"
-            />
+            >
+              <option value="">-- Select Opening Time --</option>
+              {openTime.map(time => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="form-group">
+          <div className="col-md-6">
             <label htmlFor="closeTime">Closing Time:</label>
-            <input
-              type="text"
+            <select
               id="closeTime"
               name="closeTime"
               value={formData.closeTime}
               onChange={handleInputChange}
-              required
               className="form-control"
-            />
+              disabled={!formData.openTime} // Disable if no openTime
+            >
+              <option value="">-- Select Closing Time --</option>
+              {/* Only show times at least 1 hour after openTime */}
+              {closeTime.filter(time => {
+                if (!formData.openTime) return true;
+                return timeToMinutes(time) - timeToMinutes(formData.openTime) >= 60;
+              }).map(time => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
           </div>
           {usertype === 'admin' ? (
           <div className="form-group">

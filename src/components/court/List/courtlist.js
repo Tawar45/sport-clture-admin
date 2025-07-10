@@ -6,52 +6,41 @@ const API_URL = `${process.env.REACT_APP_API_URL}/api/court`;
 
 const CourtList = () => {
   const { user } = useAuth();
-  const [usertype, setUsertype] = useState(user.usertype);
-  const [grounds, setGrounds] = useState([]);
+  const [usertype] = useState(user.usertype);
+  const [courts, setCourts] = useState([]);
   const [error, setError] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
   const navigate = useNavigate();
-  // ✅ Fetch grounds on mount
-  useEffect(() => {
-    fetchGrounds();
-  }, []);
-  // ✅ Set vendor_id to user.id if not admin
 
-  const fetchGrounds = async () => {
+  useEffect(() => {
+    fetchCourts();
+  }, []);
+
+  const fetchCourts = async () => {
     try {
-      let response;
-      if (usertype === 'admin') {
-        response = await fetch(`${API_URL}/list`);
-      } else {
-        response = await fetch(`${API_URL}/list/${user.id}`);
-      }
-      if (!response.ok) throw new Error('Failed to fetch grounds');
+      const response = await fetch(`${API_URL}/list`);
+      if (!response.ok) throw new Error('Failed to fetch courts');
       const data = await response.json();
-      setGrounds(data.grounds);
+      setCourts(data);
     } catch (error) {
-      setError('Error fetching grounds');
+      setError('Error fetching courts');
     }
   };
 
-  // Handle form submissio  
-  const handleEdit = (ground) => {
-
-  };
-
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this ground?')) {
+    if (window.confirm('Are you sure you want to delete this court?')) {
       try {
-        const response = await fetch(`${API_URL}/remove/${id}`, {
+        const response = await fetch(`${API_URL}/delete/${id}`, {
           method: 'DELETE'
         });
 
         if (!response.ok) {
-          throw new Error('Failed to delete ground');
+          throw new Error('Failed to delete court');
         }
-        fetchGrounds();
+        fetchCourts();
         setUpdateMessage('Court deleted successfully!');
       } catch (err) {
-        setError('Error deleting ground');
+        setError('Error deleting court');
       }
     }
   };
@@ -59,62 +48,58 @@ const CourtList = () => {
   const handleAddCourt = () => {
     navigate('/court/add');
   };
+  const handleEdit = (court) => {
+  navigate(`/court/edit/${court.id}`);
+ };
+
+
 
   return (
     <div className="grounds ground-container">
-      {/* <h3>Manage Grounds</h3> */}
       <div className="ground-form-container">
         <h3>Manage Courts</h3>
-        <button className="btn btn-primary" onClick={() => handleAddCourt()}>Add Court</button>
+        <button className="btn btn-primary" onClick={handleAddCourt}>Add Court</button>
         <table className="table mt-4">
           <thead>
             <tr>
               <th>Id</th>
               <th>Name</th>
-              <th>Address</th>
-              <th>City</th>
-              <th>Game</th>
+              <th>Ground ID</th>
               <th>Price</th>
-              <th>Status</th>
               <th>Time</th>
-              <th>Image</th>
+              <th>Slots (per day)</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {grounds.map(ground => (
-              <tr key={ground.id}>
-                <td>{ground.id}</td>
-                <td>{ground.name}</td>
-                <td>{ground.address}</td>
-                <td>{ground.city}</td>
-                <td>{ground.game}</td>
-                <td>{ground.price}</td>
+            {courts.map(court => (
+              <tr key={court.id}>
+                <td>{court.id}</td>
+                <td>{court.name}</td>
+                <td>{court.ground_id}</td>
+                <td>{court.price}</td>
+                <td>{court.open_time} - {court.close_time}</td>
                 <td>
-                  <span className={`status-badge ${ground.status}`}>
-                    {ground.status}
-                  </span>
-                </td>
-                <td>
-                  {ground.openTime} - {ground.closeTime}
-                </td>
-                <td>
-                  <img 
-                    src={ground.imageUrl} 
-                    alt={ground.name} 
-                    style={{ width: '50px', height: '50px', objectFit: 'cover' }} 
-                  />
+                  {court.slotsPerDay &&
+                    Object.entries(court.slotsPerDay).map(([day, slots]) =>
+                      slots.length > 0 ? (
+                        <div key={day}>
+                          <strong>{day}:</strong> {slots.join(', ')}
+                        </div>
+                      ) : null
+                    )
+                  }
                 </td>
                 <td>
                   <button 
                     className="btn btn-primary me-2" 
-                    onClick={() => handleEdit(ground)}
+                    onClick={() => handleEdit(court)}
                   >
                     Edit
                   </button>
                   <button 
                     className="btn btn-danger" 
-                    onClick={() => handleDelete(ground.id)}
+                    onClick={() => handleDelete(court.id)}
                   >
                     Delete
                   </button>
@@ -123,9 +108,11 @@ const CourtList = () => {
             ))}
           </tbody>
         </table>
+        {error && <div className="error-message">{error}</div>}
+        {updateMessage && <div className="success-message">{updateMessage}</div>}
       </div>
     </div>
   );
 };
 
-  export default CourtList; 
+export default CourtList; 
