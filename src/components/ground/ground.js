@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './ground.css';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate , useParams} from 'react-router-dom';
 const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const Ground = () => {
   const { user } = useAuth();
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [usertype, setUsertype] = useState(user.usertype);
   const [usertypeList, setUsertypeList] = useState('vendor');
   const openTime = [
@@ -16,13 +19,12 @@ const Ground = () => {
     name: '',
     address: '',
     city: '',
-    game: '',
-    price: '',
+    games: [],       // Multiple games (new feature)
     status: 'active',
     description: '',
     openTime: '',
     closeTime: '',
-    image: null,
+    images: [],
     imagePreview: null,
     fileName: '',
     vendor_id: null
@@ -45,13 +47,20 @@ const Ground = () => {
   };
   // ✅ Fetch grounds on mount
   useEffect(() => {
-    fetchGrounds();
     fetchVendors();
     fetchCities();
     fetchGames();
   }, []);
-  // ✅ Set vendor_id to user.id if not admin
 
+  // Fetch ground data when editing
+  useEffect(() => {
+    if (id) {
+      setGroundId(id); // Set the groundId when editing
+      fetchGroundById(id);
+    }
+  }, [id]);
+
+  // ✅ Set vendor_id to user.id if not admin
   useEffect(() => {
       if (usertype !== 'admin' && user?.id) {
       setFormData((prev) => ({
@@ -76,6 +85,48 @@ const Ground = () => {
       setError('Error fetching grounds');
     }
   };
+
+  const fetchGroundById = async (id) => {
+    try {
+      const response = await fetch(`${API_URL}/ground/get/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch ground');
+      const data = await response.json();
+      const ground = data.ground;
+      
+      // Parse games array if it's a string
+      let gamesArray = [];
+      try {
+        if (ground.games) {
+          if (typeof ground.games === 'string') {
+            gamesArray = JSON.parse(ground.games);
+          } else if (Array.isArray(ground.games)) {
+            gamesArray = ground.games;
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing games:', error);
+        gamesArray = [];
+      }
+      
+      setFormData({
+        name: ground.name,
+        address: ground.address,
+        city: ground.city,
+        games: gamesArray, // Use parsed games array
+        status: ground.status,
+        description: ground.description,
+        openTime: ground.openTime,
+        closeTime: ground.closeTime,
+        images: [], // Will be populated when new images are selected
+        imagePreview: ground.imageUrls || [ground.imageUrl], // Show existing images
+        fileName: ground.imageUrls ? `${ground.imageUrls.length} images` : '1 image',
+        vendor_id: ground.vendor_id
+      });
+    } catch (error) {
+      setError('Error fetching ground details');
+    }
+  };
+
   const fetchVendors = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/list/${usertypeList}`);
@@ -118,45 +169,113 @@ const Ground = () => {
     }));
   };
 
-  // Handle image change with validation
+  // Select all games
+  const selectAllGames = () => {
+    const allGameIds = games.map(game => parseInt(game.id)).sort((a, b) => a - b);
+    console.log('Select all games:', allGameIds); // Debug log
+    setFormData(prev => ({
+      ...prev,
+      games: allGameIds
+    }));
+  };
+
+  // Clear all games
+  const clearAllGames = () => {
+    console.log('Clear all games'); // Debug log
+    setFormData(prev => ({
+      ...prev,
+      games: [],
+
+    }));
+  };
+
+  // Handle game selection for multiple games
+  const handleGameSelection = (gameId) => {
+    const gameIdNum = parseInt(gameId); // Ensure it's a number
+    setFormData(prev => {
+      const currentGames = [...prev.games];
+      const index = currentGames.indexOf(gameIdNum);
+      if (index > -1) {
+        currentGames.splice(index, 1); // Remove if already selected
+      } else {
+        currentGames.push(gameIdNum); // Add if not selected
+      }
+      
+      // Ensure games array contains only numbers and is sorted
+      const sortedGames = currentGames
+        .filter(id => !isNaN(id) && id > 0) // Filter out invalid IDs
+        .sort((a, b) => a - b); // Sort numerically
+      
+      console.log('Games array updated:', sortedGames); // Debug log
+      
+      return {
+        ...prev,
+        games: sortedGames,
+      };
+    });
+  };
+
+  // Handle image change with validation for multiple images
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const files = Array.from(e.target.files);
     
-    if (file) {
-      // Validate file type
+    console.log('Selected files:', files.length, 'images');
+    
+    if (files.length > 0) {
+      // Validate file types
       const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      if (!validTypes.includes(file.type)) {
-        setError('Please select a valid image file (JPG, PNG, GIF)');
+      const invalidFiles = files.filter(file => !validTypes.includes(file.type));
+      
+      if (invalidFiles.length > 0) {
+        setError('Please select valid image files (JPG, PNG, GIF)');
         return;
       }
 
-      // Validate file size (5MB limit)
+      // Validate file sizes (5MB limit per file)
       const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-      if (file.size > maxSize) {
-        setError('Image size must be less than 5MB');
+      const oversizedFiles = files.filter(file => file.size > maxSize);
+      
+      if (oversizedFiles.length > 0) {
+        setError('Each image size must be less than 5MB');
         return;
       }
 
-      // Create preview
-      const previewUrl = URL.createObjectURL(file);
+      // Create previews
+      const previewUrls = files.map(file => URL.createObjectURL(file));
       setFormData(prev => ({
         ...prev,
-        image: file,
-        imagePreview: previewUrl,
-        fileName: file.name
+        images: files,
+        imagePreview: previewUrls,
+        fileName: files.map(f => f.name).join(', ')
       }));
       setError('');
     }
   };
 
-  // Clear image
-  const handleClearImage = () => {
+  // Clear images
+  const handleClearImages = () => {
     setFormData(prev => ({
       ...prev,
-      image: null,
+      images: [],
       imagePreview: null,
       fileName: ''
     }));
+  };
+
+  // Remove specific image from the list
+  const removeImage = (indexToRemove) => {
+    setFormData(prev => {
+      const newImages = prev.images.filter((_, index) => index !== indexToRemove);
+      const newImagePreview = prev.imagePreview.filter((_, index) => index !== indexToRemove);
+      const newFileName = newImages.map(f => f.name).join(', ');
+      
+      return {
+        ...prev,
+        images: newImages,
+        imagePreview: newImagePreview,
+        fileName: newFileName
+      };
+    });
   };
 
   // Handle form submission
@@ -167,13 +286,41 @@ const Ground = () => {
     setLoading(true);
 
     try {
+      // Validate games array
+      if (!formData.games || !Array.isArray(formData.games) || formData.games.length === 0) {
+        setError('Please select at least one game');
+        setLoading(false);
+        return;
+      }
+
+      // Ensure games array contains only valid game IDs
+      const validGames = formData.games
+        .filter(id => !isNaN(id) && id > 0)
+        .sort((a, b) => a - b);
+
+      if (validGames.length === 0) {
+        setError('Please select at least one valid game');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Submitting games array:', validGames); // Debug log
+
       const submitData = new FormData();
       // Append all form fields
       Object.keys(formData).forEach(key => {
         if (key !== 'imagePreview' && key !== 'fileName') {
-          if (key === 'image' && formData[key] instanceof File) {
-            submitData.append(key, formData[key]);
-          } else if (key !== 'image') {
+          if (key === 'images' && formData[key] instanceof Array) {
+            // Append multiple images
+            formData[key].forEach(image => {
+              submitData.append('images', image);
+            });
+          } else if (key === 'games') {
+            // Append each game ID individually
+            formData[key].forEach(gameId => {
+              submitData.append('games[]', gameId);
+            });
+          } else if (key !== 'images') {
             submitData.append(key, formData[key]);
           }
         }
@@ -198,22 +345,20 @@ const Ground = () => {
         name: '',
         address: '',
         city: '',
-        game: '',
-        price: '',
+        games: [],
         status: 'active',
         description: '',
         openTime: '',
         closeTime: '',
-        image: null,
+        images: [],
         imagePreview: null,
         fileName: '',
         vendor_id: null
       });
       setGroundId(null);
-
       // Refresh grounds list
-      fetchGrounds();
       setUpdateMessage(`Ground ${groundId ? 'updated' : 'added'} successfully!`);
+      setTimeout(() => navigate('/groundlist'), 1000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -222,21 +367,6 @@ const Ground = () => {
   };
 
   const handleEdit = (ground) => {
-    setFormData({
-      name: ground.name,
-      address: ground.address,
-      city: ground.city,
-      game: ground.game,
-      price: ground.price,
-      status: ground.status,
-      description: ground.description,
-      openTime: ground.openTime,
-      closeTime: ground.closeTime,
-      image: null,
-      imagePreview: ground.imageUrl,
-      fileName: '',
-      vendor_id: ground.vendor_id
-    });
     setGroundId(ground.id);
     setError('');
     setUpdateMessage('');
@@ -297,7 +427,7 @@ const Ground = () => {
             />
           </div>
 
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="city">City:</label>
             <select
               id="city"
@@ -316,39 +446,49 @@ const Ground = () => {
             </select>
           </div>
 
-          <div className="col-md-6">
-            <label htmlFor="game">Game:</label>
-            <select
-              id="game"
-              name="game"
-              value={formData.game}
-              onChange={handleInputChange}
-              className="form-control"
-              required
-            >
-              <option value="">-- Select Game --</option>
+          <div className="form-group games-form-group">
+            <label htmlFor="games">Games (Multiple Selection):</label>
+            <div className="games-controls">
+              <button 
+                type="button" 
+                onClick={selectAllGames}
+                className="btn btn-sm btn-outline-primary me-2"
+              >
+                Select All
+              </button>
+              <button 
+                type="button" 
+                onClick={clearAllGames}
+                className="btn btn-sm btn-outline-secondary"
+              >
+                Clear All
+              </button>
+            </div>
+            <div className="games-selection">
               {games.map(game => (
-                <option key={game.id} value={game.id}>
-                  {game.name}
-                </option>
+                <div key={game.id} className="game-checkbox">
+                  <input
+                    type="checkbox"
+                    id={`game-${game.id}`}
+                    checked={formData.games.includes(game.id)}
+                    onChange={() => handleGameSelection(game.id)}
+                    className="game-checkbox-input"
+                  />
+                  <label htmlFor={`game-${game.id}`} className="game-checkbox-label">
+                    {game.name}
+                  </label>
+                </div>
               ))}
-            </select>
+            </div>
+            {formData.games.length > 0 && (
+              <div className="selected-games">
+                <strong>Selected Games:</strong> {formData.games.map(gameId => {
+                  const game = games.find(g => g.id === gameId);
+                  return game ? game.name : `Game ${gameId}`;
+                }).join(', ')}
+              </div>
+            )}
           </div>
-
-          <div className="form-group">
-            <label htmlFor="price">Price:</label>
-            <input
-              type="text"
-              id="price"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              required
-              className="form-control"
-              placeholder="Enter price"
-            />
-          </div>
-
           <div className="form-group">
             <label htmlFor="status">Status:</label>
             <select
@@ -367,8 +507,7 @@ const Ground = () => {
             </select>
           </div>
 
-
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="openTime">Opening Time:</label>
             <select
               id="openTime"
@@ -386,7 +525,7 @@ const Ground = () => {
             </select>
           </div>
 
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="closeTime">Closing Time:</label>
             <select
               id="closeTime"
@@ -450,13 +589,14 @@ const Ground = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="image">Ground Image:</label>
+            <label htmlFor="images">Ground Images:</label>
             <input
               type="file"
-              id="image"
-              name="image"
+              id="images"
+              name="images"
               onChange={handleImageChange}
               accept="image/jpeg,image/png,image/gif"
+              multiple
               className="form-control"
               {...(!groundId && { required: true })}
             />
@@ -465,7 +605,7 @@ const Ground = () => {
                 <span>{formData.fileName}</span>
                 <button 
                   type="button" 
-                  onClick={handleClearImage}
+                  onClick={handleClearImages}
                   className="clear-btn"
                 >
                   ✕
@@ -476,7 +616,22 @@ const Ground = () => {
 
           {formData.imagePreview && (
             <div className="image-preview">
-              <img src={formData.imagePreview} alt="Preview" width={100} height={100}/>
+              {Array.isArray(formData.imagePreview) ? (
+                formData.imagePreview.map((preview, index) => (
+                  <div key={index} className="image-preview-item">
+                    <img src={preview} alt={`Preview ${index + 1}`} width={100} height={100} style={{ margin: '5px' }}/>
+                    <button 
+                      type="button" 
+                      onClick={() => removeImage(index)}
+                      className="remove-image-btn"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <img src={formData.imagePreview} alt="Preview" width={100} height={100}/>
+              )}
             </div>
           )}
 
@@ -492,63 +647,6 @@ const Ground = () => {
           </button>
         </form>
 
-        <table className="table mt-4">
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Name</th>
-              <th>Address</th>
-              <th>City</th>
-              <th>Game</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Time</th>
-              <th>Image</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {grounds.map(ground => (
-              <tr key={ground.id}>
-                <td>{ground.id}</td>
-                <td>{ground.name}</td>
-                <td>{ground.address}</td>
-                <td>{ground.city}</td>
-                <td>{ground.game}</td>
-                <td>{ground.price}</td>
-                <td>
-                  <span className={`status-badge ${ground.status}`}>
-                    {ground.status}
-                  </span>
-                </td>
-                <td>
-                  {ground.openTime} - {ground.closeTime}
-                </td>
-                <td>
-                  <img 
-                    src={ground.imageUrl} 
-                    alt={ground.name} 
-                    style={{ width: '50px', height: '50px', objectFit: 'cover' }} 
-                  />
-                </td>
-                <td>
-                  <button 
-                    className="btn btn-primary me-2" 
-                    onClick={() => handleEdit(ground)}
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    className="btn btn-danger" 
-                    onClick={() => handleDelete(ground.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </div>
   );

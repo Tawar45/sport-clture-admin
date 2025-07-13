@@ -43,8 +43,14 @@
 }
 
 .main-content {
-  margin-left: 200px;
+  margin-left: 220px; /* Default margin for expanded sidebar */
   flex: 1;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.2s;
+}
+
+/* Responsive margin for collapsed sidebar */
+.app-layout.sidebar-collapsed .main-content {
+  margin-left: 60px;
 }

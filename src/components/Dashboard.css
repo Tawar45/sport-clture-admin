@@ -53,6 +53,9 @@
 .stat-box.vendors { border-top: 4px solid #2196F3; }
 .stat-box.cities { border-top: 4px solid #FF9800; }
 .stat-box.bookings { border-top: 4px solid #9C27B0; }
+.stat-box.grounds { border-top: 4px solid #E91E63; }
+.stat-box.courts { border-top: 4px solid #FF5722; }
+.stat-box.games { border-top: 4px solid #607D8B; }
 
 .loading {
   text-align: center;

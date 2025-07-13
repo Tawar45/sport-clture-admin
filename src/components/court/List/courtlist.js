@@ -49,11 +49,8 @@ const CourtList = () => {
     navigate('/court/add');
   };
   const handleEdit = (court) => {
-  navigate(`/court/edit/${court.id}`);
- };
-
-
-
+    navigate(`/court/edit/${court.id}`);
+  };
   return (
     <div className="grounds ground-container">
       <div className="ground-form-container">
@@ -64,7 +61,7 @@ const CourtList = () => {
             <tr>
               <th>Id</th>
               <th>Name</th>
-              <th>Ground ID</th>
+              <th>Ground </th>
               <th>Price</th>
               <th>Time</th>
               <th>Slots (per day)</th>
@@ -76,7 +73,7 @@ const CourtList = () => {
               <tr key={court.id}>
                 <td>{court.id}</td>
                 <td>{court.name}</td>
-                <td>{court.ground_id}</td>
+                <td>{court?.ground?.name}</td>
                 <td>{court.price}</td>
                 <td>{court.open_time} - {court.close_time}</td>
                 <td>
