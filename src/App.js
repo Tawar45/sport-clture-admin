@@ -20,6 +20,9 @@ import UpdateCourt from './components/court/update/updatecourt';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import BookingList from './components/booking/bookinglist';
 import AddBooking from './components/booking/addbooking';
+import UpdateBooking from './components/booking/updatebooking';
+import CashCollection from './components/booking/CashCollection';
+import Settlement from './components/booking/Settlement';
 import PasswordChange from './components/PasswordChange';
 import GroundRequestList from './components/groundRequest/groundRequestList';
 
@@ -222,6 +225,32 @@ function AppRoutes() {
           </ProtectedLayout>
         }
       />
+      <Route
+        path="/booking/edit/:id"
+        element={
+          <ProtectedLayout>
+            <UpdateBooking />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/cash-collection"
+        element={
+          <ProtectedLayout>
+            <CashCollection />
+          </ProtectedLayout>
+        }
+      />
+        <Route
+        path="/settlement"
+        element={
+          <ProtectedLayout>
+            <Settlement />
+          </ProtectedLayout>
+        }
+      />
+      
+      
       <Route
         path="/groundrequestlist"
         element={

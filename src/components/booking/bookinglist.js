@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { FaEye, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaBasketballBall, FaUser, FaMoneyBillWave } from 'react-icons/fa';
-import api from '../../utils/api';
 import './bookinglist.css';
+import { useNavigate } from 'react-router-dom';
+const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const BookingList = () => {
+
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBookings();
@@ -16,17 +19,15 @@ const BookingList = () => {
 
   const fetchBookings = async () => {
     try {
-      setLoading(true);
-      const response = await api.get('/booking/list');
-      setBookings(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load bookings');
-      console.error('Error fetching bookings:', err);
-    } finally {
-      setLoading(false);
+      const response = await fetch(`${API_URL}/booking/list`);
+      if (!response.ok) throw new Error('Failed to fetch courts');
+      const data = await response.json();
+      setBookings(data.data);
+    } catch (error) {
+      setError('Error fetching courts');
     }
   };
+
 
   const handleViewBooking = (booking) => {
     setSelectedBooking(booking);
@@ -34,19 +35,19 @@ const BookingList = () => {
   };
 
   const handleEditBooking = (booking) => {
-    // Navigate to edit booking page
-    window.location.href = `/update-booking/${booking.id}`;
+    navigate(`/booking/edit/${booking.id}`);
   };
+
 
   const handleDeleteBooking = async (bookingId) => {
     if (window.confirm('Are you sure you want to delete this booking?')) {
-      try {
-        await api.delete(`/booking/${bookingId}`);
-        fetchBookings(); // Refresh the list
-      } catch (err) {
-        console.error('Error deleting booking:', err);
-        alert('Failed to delete booking');
-      }
+      // try {
+      //   await api.delete(`/booking/${bookingId}`);
+      //   fetchBookings(); // Refresh the list
+      // } catch (err) {
+      //   console.error('Error deleting booking:', err);
+      //   alert('Failed to delete booking');
+      // }
     }
   };
 
@@ -72,9 +73,9 @@ const BookingList = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  if (loading) {
-    return <div className="loading">Loading bookings...</div>;
-  }
+  // if (loading) {
+  //   return <div className="loading">Loading bookings...</div>;
+  // }
 
   // if (error) {
   //   return <div className="error">{error}</div>;
@@ -114,15 +115,23 @@ const BookingList = () => {
               </div>
               <div className="detail-item">
                 <FaMapMarkerAlt className="icon" />
-                <span>Ground ID: {booking.ground_id}</span>
+                <span>Ground: {booking?.ground?.name}</span>
               </div>
               <div className="detail-item">
                 <FaBasketballBall className="icon" />
-                <span>Game ID: {booking.game_id}</span>
+                <span>Game: {booking?.game?.name}</span>
+              </div>
+              <div className="detail-item">
+                <FaBasketballBall className="icon" />
+                <span>Court: {booking?.court?.name}</span>
               </div>
               <div className="detail-item">
                 <FaUser className="icon" />
-                <span>User ID: {booking.user_id}</span>
+                {booking.user_id ? (
+                  <span>User ID: {booking.user_id}</span>
+                ) : (
+                  <span>Guest: {booking.guest_name || 'N/A'}</span>
+                )}
               </div>
               <div className="detail-item">
                 <FaMoneyBillWave className="icon" />
@@ -179,13 +188,27 @@ const BookingList = () => {
                 <strong>Booking ID:</strong> {selectedBooking.id}
               </div>
               <div className="detail-row">
-                <strong>User ID:</strong> {selectedBooking.user_id}
+                <strong>User:</strong> 
+                { selectedBooking.user_id ? 
+                  `User ID: ${selectedBooking.user_id}` : 
+                  `Guest: ${selectedBooking.guest_name || 'N/A'}`
+                }
+              </div>
+              {!selectedBooking.user_id && (
+                <>
+                  <div className="detail-row">
+                    <strong>Guest Email:</strong> {selectedBooking.guest_email || 'N/A'}
+                  </div>
+                  <div className="detail-row">
+                    <strong>Guest Phone:</strong> {selectedBooking.guest_phone || 'N/A'}
+                  </div>
+                </>
+              )}
+              <div className="detail-row">
+                <strong>Ground Name:</strong> {selectedBooking?.ground?.name}
               </div>
               <div className="detail-row">
-                <strong>Ground ID:</strong> {selectedBooking.ground_id}
-              </div>
-              <div className="detail-row">
-                <strong>Game ID:</strong> {selectedBooking.game_id}
+                <strong>Game Name:</strong> {selectedBooking?.game?.name}
               </div>
               <div className="detail-row">
                 <strong>Date:</strong> {formatDate(selectedBooking.booking_date)}

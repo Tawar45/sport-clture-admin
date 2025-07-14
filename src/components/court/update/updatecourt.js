@@ -10,7 +10,7 @@ const days = [
 ];
 
 const openTime = [
-  '08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'
+  '08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'
 ];
 const closeTime = [...openTime];
 
@@ -103,15 +103,17 @@ const UpdateCourt = () => {
 
   // Helper: Convert time string to minutes
   const timeToMinutes = (t) => {
-    const [h, m] = t.split(":").map(Number);
-    return h * 60 + m;
+    // Handle time format without colons: "08", "09", etc.
+    const hours = parseInt(t);
+    return hours * 60;
   };
-  // Helper: Convert minutes to time string
+  
+  // Helper: Convert minutes to time string (just hour)
   const minutesToTime = (min) => {
     const h = String(Math.floor(min / 60)).padStart(2, '0');
-    const m = String(min % 60).padStart(2, '0');
-    return `${h}:${m}`;
+    return h; // Return just the hour number
   };
+  
   // Generate 1-hour slots between open and close
   const getSlots = (open, close) => {
     if (!open || !close) return [];
@@ -119,7 +121,9 @@ const UpdateCourt = () => {
     let start = timeToMinutes(open);
     let end = timeToMinutes(close);
     for (let t = start; t + 60 <= end; t += 60) {
-      slots.push(`${minutesToTime(t)} - ${minutesToTime(t + 60)}`);
+      const startTime = minutesToTime(t);
+      const endTime = minutesToTime(t + 60);
+      slots.push(`${startTime} - ${endTime}`);
     }
     return slots;
   };
@@ -162,7 +166,7 @@ const UpdateCourt = () => {
       <div className="ground-form-container">
         <h2>Edit Court</h2>
         <form onSubmit={handleSubmit} className="ground-form">
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="name">Court Name:</label>
             <input
               type="text"
@@ -176,7 +180,7 @@ const UpdateCourt = () => {
               placeholder="Enter court name"
             />
           </div>
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="ground_id">Ground:</label>
             <select
               id="ground_id"
@@ -194,7 +198,7 @@ const UpdateCourt = () => {
               ))}
             </select>
           </div>
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="openTime">Opening Time:</label>
             <select
               id="openTime"
@@ -211,7 +215,7 @@ const UpdateCourt = () => {
               ))}
             </select>
           </div>
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="closeTime">Closing Time:</label>
             <select
               id="closeTime"
@@ -232,7 +236,7 @@ const UpdateCourt = () => {
               ))}
             </select>
           </div>
-          <div className="col-md-6">
+          <div className="form-group">
             <label htmlFor="price">Price:</label>
             <input
               type="number"
@@ -266,28 +270,31 @@ const UpdateCourt = () => {
                   {getSlots(formData.openTime, formData.closeTime).length === 0 ? (
                     <p>No available 1-hour slots for selected times.</p>
                   ) : (
-                    getSlots(formData.openTime, formData.closeTime).map(slot => (
-                      <div key={slot} className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id={`slot-${activeTab}-${slot}`}
-                          checked={slotsPerDay[activeTab]?.includes(slot) || false}
-                          onChange={e => {
-                            setSlotsPerDay(prev => {
-                              const updated = { ...prev };
-                              if (e.target.checked) {
-                                updated[activeTab] = [...(updated[activeTab] || []), slot];
-                              } else {
-                                updated[activeTab] = (updated[activeTab] || []).filter(s => s !== slot);
-                              }
-                              return updated;
-                            });
-                          }}
-                        />
-                        <label className="form-check-label" htmlFor={`slot-${activeTab}-${slot}`}>{slot}</label>
-                      </div>
-                    ))
+                    <div className="slots-grid">
+                      {getSlots(formData.openTime, formData.closeTime).map(slot => {
+                        const currentSlots = slotsPerDay[activeTab] || [];
+                        const isChecked = currentSlots.includes(slot);
+                        
+                        return (
+                          <div key={`${activeTab}-${slot}`} className="slot-item">
+                            <input
+                              type="checkbox"
+                              className="slot-checkbox"
+                              id={`slot-${activeTab}-${slot}`}
+                              checked={isChecked}
+                              // onChange={() => handleSlotChange(slot, activeTab)}
+                            />
+                            <label 
+                              className="slot-label" 
+                              htmlFor={`slot-${activeTab}-${slot}`}
+                              // onClick={() => handleSlotChange(slot, activeTab)}
+                            >
+                              {slot}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               ) : (

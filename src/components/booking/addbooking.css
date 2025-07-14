@@ -630,3 +630,25 @@
 .date-info strong {
   color: #1565c0;
 } 
+
+.user-details-display {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.detail-item {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-item strong {
+  color: #495057;
+  margin-right: 8px;
+} 

@@ -12,6 +12,7 @@ const AddCourt = () => {
   const [usertypeList, setUsertypeList] = useState('vendor');
   const [grounds, setGrounds] = useState([]);
   const [vendors, setVendors] = useState([]);
+
   const [formData, setFormData] = useState({
     ground_id: '',
     name: '',
@@ -20,42 +21,8 @@ const AddCourt = () => {
     price: '',
     games_id: '',
   });
-  const openTime = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '19:00',
-    '20:00',
-    '21:00',
-    '22:00',
-    '23:00',
-  ];
-  const closeTime = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '19:00',
-    '20:00',
-    '21:00',
-    '22:00',
-    '23:00',
-  ];  
+  const openTime = ['08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
+  const closeTime = ['08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
   const day = [
     'Monday',
     'Tuesday',
@@ -71,9 +38,12 @@ const AddCourt = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
+  // Initialize slotsPerDay properly
   const [slotsPerDay, setSlotsPerDay] = useState(() => {
     const initial = {};
-    day.forEach(d => { initial[d] = []; });
+    day.forEach(d => { 
+      initial[d] = []; 
+    });
     return initial;
   });
   const [games, setGames] = useState([]);
@@ -81,15 +51,15 @@ const AddCourt = () => {
 
   // Helper: Convert time string to minutes
   const timeToMinutes = (t) => {
-    const [h, m] = t.split(":").map(Number);
-    return h * 60 + m;
+    // Handle time format without colons: "08", "09", etc.
+    const hours = parseInt(t);
+    return hours * 60;
   };
   
-  // Helper: Convert minutes to time string
+  // Helper: Convert minutes to time string (just hour)
   const minutesToTime = (min) => {
     const h = String(Math.floor(min / 60)).padStart(2, '0');
-    const m = String(min % 60).padStart(2, '0');
-    return `${h}:${m}`;
+    return h; // Return just the hour number
   };
   
   // Generate 1-hour slots between open and close
@@ -99,7 +69,9 @@ const AddCourt = () => {
     let start = timeToMinutes(open);
     let end = timeToMinutes(close);
     for (let t = start; t + 60 <= end; t += 60) {
-      slots.push(`${minutesToTime(t)} - ${minutesToTime(t + 60)}`);
+      const startTime = minutesToTime(t);
+      const endTime = minutesToTime(t + 60);
+      slots.push(`${startTime} - ${endTime}`);
     }
     return slots;
   };
@@ -168,6 +140,34 @@ const AddCourt = () => {
     }));
   };
 
+  // Handle slot selection with better state management
+  const handleSlotChange = (slot, dayName) => {
+    console.log('handleSlotChange called:', slot, dayName); // Debug log
+    setSlotsPerDay(prev => {
+      const updated = { ...prev };
+      const currentSlots = updated[dayName] || [];
+      
+      console.log('Current slots for', dayName, ':', currentSlots); // Debug log
+      
+      if (currentSlots.includes(slot)) {
+        // Remove slot if already selected
+        updated[dayName] = currentSlots.filter(s => s !== slot);
+        console.log('Removing slot:', slot); // Debug log
+      } else {
+        // Add slot if not selected
+        updated[dayName] = [...currentSlots, slot];
+        console.log('Adding slot:', slot); // Debug log
+      }
+      
+      console.log('Updated slots for', dayName, ':', updated[dayName]); // Debug log
+      return updated;
+    });
+  };
+
+  // Force re-render when slotsPerDay changes
+  useEffect(() => {
+    console.log('slotsPerDay updated:', slotsPerDay);
+  }, [slotsPerDay]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -364,7 +364,7 @@ const AddCourt = () => {
             </ul>
           </div> 
 
-          <div className="form-group full-width tab-content p-3 border border-top-0">
+          <div className="tab-content p-3 border border-top-0">
             <div className="tab-pane fade show active">
               <h5>{activeTab}</h5>
               {formData.openTime && formData.closeTime ? (
@@ -372,33 +372,41 @@ const AddCourt = () => {
                   {getSlots(formData.openTime, formData.closeTime).length === 0 ? (
                     <p>No available 1-hour slots for selected times.</p>
                   ) : (
-                    getSlots(formData.openTime, formData.closeTime).map(slot => (
-                      <div key={slot} className="form-check">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          id={`slot-${activeTab}-${slot}`}
-                          checked={slotsPerDay[activeTab]?.includes(slot) || false}
-                          onChange={e => {
-                            setSlotsPerDay(prev => {
-                              const updated = { ...prev };
-                              if (e.target.checked) {
-                                updated[activeTab] = [...(updated[activeTab] || []), slot];
-                              } else {
-                                updated[activeTab] = (updated[activeTab] || []).filter(s => s !== slot);
-                              }
-                              return updated;
-                            });
-                          }}
-                        />
-                        <label className="form-check-label" htmlFor={`slot-${activeTab}-${slot}`}>{slot}</label>
-                      </div>
-                    ))
+                    <div className="slots-grid">
+                      {getSlots(formData.openTime, formData.closeTime).map(slot => {
+                        const currentSlots = slotsPerDay[activeTab] || [];
+                        const isChecked = currentSlots.includes(slot);
+                        
+                        console.log(`Slot: ${slot}, Day: ${activeTab}, Checked: ${isChecked}`); // Debug log
+                        
+                        return (
+                          <div key={`${activeTab}-${slot}`} className="slot-item">
+                            <input
+                              type="checkbox"
+                              className="slot-checkbox"
+                              id={`slot-${activeTab}-${slot}`}
+                              checked={isChecked}
+                              onChange={() => handleSlotChange(slot, activeTab)}
+                            />
+                            <label 
+                              className="slot-label" 
+                              htmlFor={`slot-${activeTab}-${slot}`}
+                              onClick={() => handleSlotChange(slot, activeTab)}
+                            >
+                              {slot}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               ) : (
                 <p>Select Opening and Closing Time to set available slots.</p>
               )}
+              
+              {/* Debug info - remove in production */}
+          
             </div>
           </div>
 

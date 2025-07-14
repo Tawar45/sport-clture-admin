@@ -32,8 +32,13 @@ const AddBooking = () => {
 
   const [formData, setFormData] = useState({
     user_id: '',
+    user_type: 'user', // Add user_type field
+    username: '', // Add username field
+    email: '', // Add email field
+    phone: '', // Add phone field
+    vendor_id: '', // Add vendor_id field
     ground_id: '',
-    court_id: '', // Add court_id field
+    court_id: '',
     game_id: '',
     booking_date: '',
     slots: [],
@@ -47,14 +52,14 @@ const AddBooking = () => {
   const [usertype, setUsertype] = useState(user.usertype);
   const [users, setUsers] = useState([]);
   const [grounds, setGrounds] = useState([]);
-  const [courts, setCourts] = useState([]); // Add courts state
+  const [courts, setCourts] = useState([]);
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [vendors, setVendors] = useState([]);
-  const [usertypeList, setUsertypeList] = useState('vendor');
-  const [activeTab, setActiveTab] = useState('Monday'); // State to manage active tab
+  const [usertypeList, setUsertypeList] = useState('user');
+  const [activeTab, setActiveTab] = useState('Monday');
 
   useEffect(() => {
     fetchGrounds();
@@ -117,7 +122,7 @@ const AddBooking = () => {
     }
   };
 
-  // Update the handleInputChange function to reset slots when date changes
+  // Update the handleInputChange function
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -125,16 +130,39 @@ const AddBooking = () => {
       [name]: value
     }));
 
+    // If user_type changes, reset user-related fields
+    if (name === 'user_type') {
+      setFormData(prev => ({
+        ...prev,
+        user_id: '',
+        username: '',
+        email: '',
+        phone: ''
+      }));
+    }
+
+    // If user_id is selected (for existing users), populate user details
+    if (name === 'user_id' && value) {
+      const selectedUser = users.find(user => user.id === parseInt(value));
+      if (selectedUser) {
+        setFormData(prev => ({
+          ...prev,
+          username: selectedUser.username || '',
+          email: selectedUser.email || '',
+          phone: selectedUser.phone || ''
+        }));
+      }
+    }
+
     // If ground is selected, fetch courts for that ground
     if (name === 'ground_id' && value) {
       fetchCourtsByGround(value);
-      // Reset court_id when ground changes
       setFormData(prev => ({
         ...prev,
         court_id: '',
         game_id: '',
         amount: '',
-        slots: [] // Reset slots when ground changes
+        slots: []
       }));
     }
 
@@ -142,13 +170,14 @@ const AddBooking = () => {
     if (name === 'court_id' && value) {
       const selectedCourt = courts.find(court => court.id === parseInt(value));
       if (selectedCourt) {
-        // Auto-populate amount based on court price
         const courtPrice = parseFloat(selectedCourt.price);
+        const gameId = selectedCourt.game ? selectedCourt.game.id : '';
         
         setFormData(prev => ({
           ...prev,
+          game_id: gameId,
           amount: courtPrice.toFixed(2),
-          slots: [] // Reset slots when court changes
+          slots: []
         }));
       }
     }
@@ -159,7 +188,7 @@ const AddBooking = () => {
       setActiveTab(selectedDay);
       setFormData(prev => ({
         ...prev,
-        slots: [] // Reset selected slots when date changes
+        slots: []
       }));
     }
   };
@@ -207,16 +236,47 @@ const AddBooking = () => {
       return;
     }
 
+    // Validate user type and required fields
+    if (formData.user_type === 'user' && !formData.user_id) {
+      setError('Please select a user');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.user_type === 'guest' && (!formData.username || !formData.email || !formData.phone)) {
+      setError('Please fill in all guest user details');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await api.post('/booking/add', {
-        ...formData,
-        slot: formData.slots.join(', ') // Convert array to string for API
+      const response = await fetch(`${API_URL}/booking/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          slot: formData.slots.join(', ') // Convert array to string for API
+        })
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create booking');
+      }
 
       setSuccess(true);
       setFormData({
         user_id: '',
+        user_type: 'user',
+        username: '',
+        email: '',
+        phone: '',
+        vendor_id: '',
         ground_id: '',
+        court_id: '',
         game_id: '',
         booking_date: '',
         slots: [],
@@ -228,28 +288,18 @@ const AddBooking = () => {
         status: 'pending'
       });
 
-      setTimeout(() => {
-        window.location.href = '/booking-list';
-      }, 2000);
+      navigate('/bookinglist');
     } catch (err) {
-      setError('Failed to create booking');
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Failed to create booking');
+      } else {
+        setError(err.message || 'Failed to create booking');
+      }
       console.error('Error creating booking:', err);
     } finally {
       setLoading(false);
     }
   };
-
-  // Generate 1-hour time slots from 6 AM to 10 PM
-  // const timeSlots = [];
-  // for (let hour = 6; hour <= 22; hour++) {
-  //   const startTime = `${hour.toString().padStart(2, '0')}:00`;
-  //   const endTime = `${(hour + 1).toString().padStart(2, '0')}:00`;
-  //   timeSlots.push(`${startTime}-${endTime}`);
-  // }
-
-  // if (error) {
-  //   return <div className="error">{error}</div>;
-  // }
 
   return (
     <div className="add-booking-container">
@@ -277,26 +327,116 @@ const AddBooking = () => {
 
       <form onSubmit={handleSubmit} className="booking-form">
         <div className="form-grid">
+          {/* User Type Selection */}
           <div className="form-group">
             <label>
               <FaUser className="icon" />
-              User
+              User Type
             </label>
             <select
-              name="user_id"
-              value={formData.user_id}
+              name="user_type"
+              value={formData.user_type}
               onChange={handleInputChange}
               required
             >
-              <option value="">Select User</option>
-              {vendors.map(user => (
-                <option key={user.id} value={user.id}>
-                  {user.username} ({user.email})
+              <option value="user">Registered User</option>
+              <option value="guest">Guest User</option>
+            </select>
+          </div>
+
+          {/* Existing User Selection (only show for registered users) */}
+          {formData.user_type === 'user' && (
+            <div className="form-group">
+              <label>
+                <FaUser className="icon" />
+                Select User
+              </label>
+              <select
+                name="user_id"
+                value={formData.user_id}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select User</option>
+                {users.map(user => (
+                  <option key={user.id} value={user.id}>
+                    {user.username} ({user.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Guest User Fields (only show for guest users) */}
+          {formData.user_type === 'guest' && (
+            <>
+              <div className="form-group">
+                <label>
+                  <FaUser className="icon" />
+                  Username
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter username"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  <FaUser className="icon" />
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter email"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  <FaUser className="icon" />
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter phone number"
+                />
+              </div>
+            </>
+          )}
+          
+          {/* Vendor ID field */}
+          <div className="form-group">
+            <label>
+              <FaUser className="icon" />
+              Vendor
+            </label>
+            <select
+              name="vendor_id"
+              value={formData.vendor_id}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Vendor</option>
+              {vendors.map(vendor => (
+                <option key={vendor.id} value={vendor.id}>
+                  {vendor.username} ({vendor.email})
                 </option>
               ))}
             </select>
           </div>
-
           <div className="form-group">
             <label>
               <FaMapMarkerAlt className="icon" />
@@ -317,7 +457,7 @@ const AddBooking = () => {
             </select>
           </div>
 
-          {/* Add Court selection */}
+          {/* Court selection */}
           <div className="form-group">
             <label>
               <FaGamepad className="icon" />
@@ -348,13 +488,20 @@ const AddBooking = () => {
               name="game_id"
               value={formData.game_id}
               onChange={handleInputChange}
+              disabled={!formData.court_id}
             >
               <option value="">Select Game</option>
-              {games.map(game => (
-                <option key={game.id} value={game.id}>
-                  {game.name}
-                </option>
-              ))}
+              {(() => {
+                const selectedCourt = courts.find(court => court.id === parseInt(formData.court_id));
+                if (selectedCourt && selectedCourt.game) {
+                  return (
+                    <option key={selectedCourt.game.id} value={selectedCourt.game.id}>
+                      {selectedCourt.game.name}
+                    </option>
+                  );
+                }
+                return null;
+              })()}
             </select>
           </div>
 

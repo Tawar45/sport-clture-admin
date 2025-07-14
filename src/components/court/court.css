@@ -192,3 +192,172 @@ textarea.form-control {
     grid-column: 1 / -1;
   }
 } 
+
+/* Tab content styling for vertical layout */
+.tab-content {
+  display: block;
+  width: 100%;
+}
+
+.tab-pane {
+  display: block;
+  width: 100%;
+}
+
+.slots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  transition: background-color 0.2s;
+  margin-bottom: 4px;
+}
+
+.form-check:hover {
+  background-color: #f0f0f0;
+}
+
+.form-check-input {
+  margin-right: 10px;
+  margin-bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  /* Ensure checkbox is visible */
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+.form-check-input:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+  cursor: pointer;
+  flex: 1;
+  user-select: none;
+}
+
+/* Simple checkbox styling */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 10px;
+}
+
+.slot-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.slot-item:hover {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+}
+
+.slot-item:has(.slot-checkbox:checked) {
+  background-color: #e3f2fd;
+  border-color: #007bff;
+}
+
+.slot-checkbox {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  cursor: pointer;
+  accent-color: #007bff;
+}
+
+.slot-checkbox:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.slot-label {
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+.slot-label:hover {
+  color: #007bff;
+}
+
+/* Override grid layout for tab content */
+@media screen and (min-width: 768px) {
+  .ground-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .form-group:last-child,
+  .image-preview,
+  .error-message,
+  .success-message,
+  button[type="submit"],
+  .tab-content,
+  .slots-list {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Additional styling for better tab appearance */
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+  border: 1px solid transparent;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  color: #495057;
+  background-color: transparent;
+  border-color: #dee2e6 #dee2e6 transparent;
+  padding: 0.5rem 1rem;
+  margin-right: 2px;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: #e9ecef #e9ecef #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.nav-tabs .nav-link.active {
+  color: #495057;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Full width form group for tab content */
+.form-group.full-width {
+  grid-column: 1 / -1;
+} 
