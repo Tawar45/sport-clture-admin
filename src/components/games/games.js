@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './games.css';
 
 const API_URL = `${process.env.REACT_APP_API_URL}/api/games`;
@@ -14,10 +14,12 @@ const Games = () => {
   const [gameImage, setGameImage] = useState('');
   const [formData, setFormData] = useState({
     name: '',
+    description: '',
     image: null,
     imagePreview: null,
     fileName: ''
   });
+  const fileInputRef = useRef(null);
 
   // ✅ Fetch games on mount
   useEffect(() => {
@@ -50,11 +52,17 @@ const Games = () => {
       setError('Game name must be at least 3 characters');
       return;
     }
+    if (!formData.description.trim()) {
+      setError('Description is required');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const submitData = new FormData();
       submitData.append('name', formData.name);
+      submitData.append('description', formData.description);
       if (formData.image instanceof File) {
         submitData.append('image', formData.image);
       }
@@ -75,11 +83,17 @@ const Games = () => {
       // Reset form and gameId
       setFormData({
         name: '',
+        description:'',
         image: null,
         imagePreview: null,
         fileName: ''
       });
       setGameId(null);
+
+      // Clear file input after submit
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
 
       // Refresh games list
       fetchGames();
@@ -94,6 +108,7 @@ const Games = () => {
   const handleEdit = (game) => {
     setFormData({
       name: game.name,
+      description:game.description,
       image: null,  // Reset image since we don't want to send the URL as file
       imagePreview: game.imageUrl,
       fileName: ''  // Reset filename since we don't have the original filename
@@ -129,7 +144,13 @@ const Games = () => {
       name: e.target.value
     });
   };
-
+  const handleDescriptionChange = (e) => {
+    setFormData({
+      ...formData,
+      description: e.target.value
+    });
+  };
+  
   // Handle image change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -183,6 +204,18 @@ const Games = () => {
               className="form-control"
             />
           </div>
+          <div className="form-group">
+            <label htmlFor="name">Description:</label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleDescriptionChange}
+              required
+              className="form-control"
+              rows={4} // optional: sets height
+             />
+          </div>
 
           <div className="form-group">
             <label htmlFor="image">Game Image:</label>
@@ -193,6 +226,7 @@ const Games = () => {
               onChange={handleImageChange}
               accept="image/*"
               className="form-control"
+              ref={fileInputRef}
               {...(!gameId && { required: true })}
             />
             {formData.fileName && (
@@ -220,7 +254,7 @@ const Games = () => {
           <button 
             type="submit"
             className="btn btn-primary" 
-            disabled={loading || !formData.name || !formData.image}>
+            disabled={loading || !formData.name || (!formData.image && !formData.imagePreview && !gameId)}>
             {loading ? 'Adding...' : (gameId ? 'Update Game' : 'Add Game')}
           </button>
         </form>
