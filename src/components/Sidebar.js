@@ -99,14 +99,8 @@ const Sidebar = ({ expanded }) => {
             </Link>
           </li>
           <li>
-            <Link to="/reports">
+            <Link to="/report">
               <i className="fas fa-chart-bar"></i> {expanded && <span>Reports</span>}
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/games">
-              <i className="fas fa-chart-line"></i> {expanded && <span>Finance report</span>}
             </Link>
           </li>
           <li>
@@ -114,11 +108,6 @@ const Sidebar = ({ expanded }) => {
               <i className="fas fa-cog"></i> {expanded && <span>Settings</span>}
             </Link>
           </li>
-          {/* <li>
-            <Link to="/change-password">
-              <i className="fas fa-key"></i> {expanded && <span>Change Password</span>}
-            </Link>
-          </li> */}
           </ul>
         )}
         {user.usertype === 'vendor' && (

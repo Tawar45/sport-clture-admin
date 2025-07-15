@@ -24,6 +24,7 @@ import UpdateBooking from './components/booking/updatebooking';
 import CashCollection from './components/booking/CashCollection';
 import Settlement from './components/booking/Settlement';
 import PasswordChange from './components/PasswordChange';
+import Report from './components/Report';
 import GroundRequestList from './components/groundRequest/groundRequestList';
 
 
@@ -249,8 +250,15 @@ function AppRoutes() {
           </ProtectedLayout>
         }
       />
-      
-      
+    <Route
+        path="/report"
+        element={
+          <ProtectedLayout>
+            <Report />
+          </ProtectedLayout>
+        }
+      />
+          
       <Route
         path="/groundrequestlist"
         element={

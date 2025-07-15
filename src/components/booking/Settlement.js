@@ -85,12 +85,12 @@ export default function Settlement() {
               <td className={styles.td}>{b.booking_date}</td>
               <td className={styles.td}>₹{parseFloat(b.amount).toFixed(2)}</td>
               <td className={styles.td}>
-                {b.is_cash_collected
-                  ? <span className={`${styles.badge} ${styles.badgeReceived}`}><FaCheckCircle style={{marginRight:4}}/>Received by {b.cash_collected_by}<br/><span style={{fontWeight:400,fontSize:12}}>{new Date(b.cash_collected_at).toLocaleString()}</span></span>
+                {b.admin_cash_received
+                  ? <span className={`${styles.badge} ${styles.badgeReceived}`}><FaCheckCircle style={{marginRight:4}}/>Received<br/><span style={{fontWeight:400,fontSize:12}}>{b.admin_cash_received_at ? new Date(b.admin_cash_received_at).toLocaleString() : ''}</span></span>
                   : <span className={`${styles.badge} ${styles.badgePending}`}><FaClock style={{marginRight:4}}/>Pending</span>}
               </td>
               <td className={styles.td}>
-                {!b.is_cash_collected && (
+                {(!b.admin_cash_received || b.admin_cash_received === null) && (
                   <button className={styles.button} onClick={()=>handleReceived(b.id)} disabled={updating[b.id]}>
                     {updating[b.id] ? 'Updating...' : 'Received'}
                   </button>
