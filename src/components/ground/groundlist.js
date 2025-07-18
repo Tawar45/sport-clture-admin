@@ -8,9 +8,9 @@ const GroundList = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [usertype, setUsertype] = useState(user.usertype);
-  const [usertypeList, setUsertypeList] = useState('vendor');
+  // const [usertypeList, setUsertypeList] = useState('vendor');
   const [grounds, setGrounds] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [updateMessage, setUpdateMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -120,7 +120,7 @@ const GroundList = () => {
                       <div className="game-names">
                         {ground.gameNames.map((gameName, index) => (
                           <span key={index} className="game-name-badge">
-                            {gameName}, 
+                            {gameName.name},
                           </span>
                         ))}
                       </div>

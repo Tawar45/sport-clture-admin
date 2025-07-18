@@ -5,7 +5,7 @@ import './PasswordChange.css';
 const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const PasswordChange = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
