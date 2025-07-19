@@ -26,7 +26,7 @@ import Settlement from './components/booking/Settlement';
 import PasswordChange from './components/PasswordChange';
 import Report from './components/Report';
 import GroundRequestList from './components/groundRequest/groundRequestList';
-
+import Amenities from './components/amenities/amenities';
 
 function ProtectedLayout({ children }) {
   const { user, logout } = useAuth();
@@ -127,6 +127,14 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <City />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/amenities"
+        element={
+          <ProtectedLayout>
+            <Amenities/>
           </ProtectedLayout>
         }
       />

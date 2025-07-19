@@ -27,7 +27,8 @@ const Ground = () => {
     images: [],
     imagePreview: null,
     fileName: '',
-    vendor_id: null
+    vendor_id: null,
+    amenities: [],       // Multiple games (new feature)
   });
 
   const [grounds, setGrounds] = useState([]);
@@ -38,6 +39,8 @@ const Ground = () => {
   const [vendors, setVendors] = useState([]);
   const [cities, setCities] = useState([]);
   const [games, setGames] = useState([]);
+  const [amenities, setAmenities] = useState([]);
+  
   // Status options
   const statusOptions = ['active', 'inactive', 'maintenance'];
 
@@ -50,6 +53,7 @@ const Ground = () => {
     fetchVendors();
     fetchCities();
     fetchGames();
+    fetchAmenities();
   }, []);
 
   // Fetch ground data when editing
@@ -108,11 +112,32 @@ const Ground = () => {
         gamesArray = [];
       }
       
+      // Parse amenities array if it's a string
+      let amenitiesArray = [];
+      try {
+        if (ground.amenities) {
+          if (typeof ground.amenities === 'string') {
+            amenitiesArray = JSON.parse(ground.amenities);
+          } else if (Array.isArray(ground.amenities)) {
+            amenitiesArray = ground.amenities;
+          }
+        } else if (ground.amenities_ids) {
+          if (typeof ground.amenities_ids === 'string') {
+            amenitiesArray = JSON.parse(ground.amenities_ids);
+          } else if (Array.isArray(ground.amenities_ids)) {
+            amenitiesArray = ground.amenities_ids;
+          }
+        }
+      } catch (error) {
+        amenitiesArray = [];
+      }
+
       setFormData({
         name: ground.name,
         address: ground.address,
         city: ground.city,
         games: gamesArray, // Use parsed games array
+        amenities: amenitiesArray, // <-- add this line
         status: ground.status,
         description: ground.description,
         openTime: ground.openTime,
@@ -159,6 +184,17 @@ const Ground = () => {
       setGames([]);
     }
   };
+  const fetchAmenities = async () => {
+    try {
+      const response = await fetch(`${API_URL}/amenities/list`);
+      if (!response.ok) throw new Error('Failed to fetch amenities');
+      const data = await response.json();
+      console.log(data,'data');
+      setAmenities(data.amenities || []);
+    } catch (error) {
+      setAmenities([]);
+    }
+  }
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -215,6 +251,50 @@ const Ground = () => {
     });
   };
 
+  // Select all games
+  const selectAllAmenities = () => {
+    const allAmenitiesIds = amenities.map(ameniti => parseInt(ameniti.id)).sort((a, b) => a - b);
+    console.log('Select all games:', allAmenitiesIds); // Debug log
+    setFormData(prev => ({
+      ...prev,
+      amenities: allAmenitiesIds
+    }));
+  };
+
+  // Clear all games
+  const clearAllAmenities = () => {
+    console.log('Clear all games'); // Debug log
+    setFormData(prev => ({
+      ...prev,
+      amenities: [],
+
+    }));
+  };
+
+    // Handle game selection for multiple games
+  const handleAmenitiesSelection = (id) => {
+      const amenitiesIdNum = parseInt(id); // Ensure it's a number
+      setFormData(prev => {
+        const currentAmenities = [...prev.amenities];
+        const index = currentAmenities.indexOf(amenitiesIdNum);
+        if (index > -1) {
+          currentAmenities.splice(index, 1); // Remove if already selected
+        } else {
+          currentAmenities.push(amenitiesIdNum); // Add if not selected
+        }
+        
+        // Ensure games array contains only numbers and is sorted
+        const sortedAmenities = currentAmenities
+          .filter(id => !isNaN(id) && id > 0) // Filter out invalid IDs
+          .sort((a, b) => a - b); // Sort numerically
+            
+        return {
+          ...prev,
+          amenities: sortedAmenities,
+        };
+      });
+    };
+  
   // Handle image change with validation for multiple images
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -320,9 +400,15 @@ const Ground = () => {
             formData[key].forEach(gameId => {
               submitData.append('games[]', gameId);
             });
+          } else if (key === 'amenities') {
+            // Append each game ID individually
+            formData[key].forEach(amenities => {
+              submitData.append('amenities[]', amenities);
+            });
           } else if (key !== 'images') {
             submitData.append(key, formData[key]);
           }
+          
         }
       });
 
@@ -445,7 +531,41 @@ const Ground = () => {
               ))}
             </select>
           </div>
-
+          <div className="form-group games-form-group">
+            <label htmlFor="games">Games (Multiple Selection):</label>
+            <div className="games-controls">
+              <button 
+                type="button" 
+                onClick={selectAllAmenities}
+                className="btn btn-sm btn-outline-primary me-2"
+              >
+                Select All
+              </button>
+              <button 
+                type="button" 
+                onClick={clearAllAmenities}
+                className="btn btn-sm btn-outline-secondary"
+              >
+                Clear All
+              </button>
+            </div>
+            <div className="games-selection">
+              {amenities.map(amenities => (
+                <div key={amenities.id} className="amenities-checkbox">
+                  <input
+                    type="checkbox"
+                    id={`amenities-${amenities.id}`}
+                    checked={Array.isArray(formData.amenities) && formData.amenities.includes(amenities.id)}
+                    onChange={() => handleAmenitiesSelection(amenities.id)}
+                    className="game-checkbox-input"
+                  />
+                  <label htmlFor={`amenities-${amenities.id}`} className="amenities-checkbox-label">
+                    {amenities.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="form-group games-form-group">
             <label htmlFor="games">Games (Multiple Selection):</label>
             <div className="games-controls">
@@ -480,14 +600,6 @@ const Ground = () => {
                 </div>
               ))}
             </div>
-            {formData.games.length > 0 && (
-              <div className="selected-games">
-                <strong>Selected Games:</strong> {formData.games.map(gameId => {
-                  const game = games.find(g => g.id === gameId);
-                  return game ? game.name : `Game ${gameId}`;
-                }).join(', ')}
-              </div>
-            )}
           </div>
           <div className="form-group">
             <label htmlFor="status">Status:</label>

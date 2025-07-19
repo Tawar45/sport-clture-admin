@@ -53,6 +53,11 @@ const Sidebar = ({ expanded }) => {
             </Link>
           </li>
           <li>
+            <Link to="/amenities">
+              <i className="fas fa-city"></i> {expanded && <span>Amenities</span>}
+            </Link>
+          </li>
+          <li>
             <Link to="/games">
               <i className="fas fa-gamepad"></i> {expanded && <span>Sport Games</span>}
             </Link>
