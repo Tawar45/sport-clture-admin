@@ -95,6 +95,7 @@ const GroundList = () => {
               <th>Game</th>
               <th>Status</th>
               <th>Time</th>
+              <th>Price</th>
               <th>Image</th>
               <th>Actions</th>
             </tr>
@@ -138,6 +139,7 @@ const GroundList = () => {
                   <td>
                     {ground.openTime} - {ground.closeTime}
                   </td>
+                  <td>{ground.price}</td>
                   <td>
                     {ground.imageUrls && ground.imageUrls.length > 0 ? (
                       <div className="ground-images">

@@ -27,7 +27,7 @@ import PasswordChange from './components/PasswordChange';
 import Report from './components/Report';
 import GroundRequestList from './components/groundRequest/groundRequestList';
 import Amenities from './components/amenities/amenities';
-
+import Volunteer from './components/volunteer/volunteer';
 function ProtectedLayout({ children }) {
   const { user, logout } = useAuth();
   const [sidebarExpanded, setSidebarExpanded] = React.useState(() => {
@@ -263,6 +263,14 @@ function AppRoutes() {
         element={
           <ProtectedLayout>
             <Report />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/volunteer"
+        element={
+          <ProtectedLayout>
+            <Volunteer />
           </ProtectedLayout>
         }
       />

@@ -109,6 +109,12 @@ const Sidebar = ({ expanded }) => {
             </Link>
           </li>
           <li>
+            <Link to="/volunteer">
+              <i className="fas fa-chart-bar"></i> {expanded && <span>Volunteer</span>}
+            </Link>
+          </li>
+          
+          <li>
             <Link to="/settings">
               <i className="fas fa-cog"></i> {expanded && <span>Settings</span>}
             </Link>

@@ -29,6 +29,7 @@ const Ground = () => {
     fileName: '',
     vendor_id: null,
     amenities: [],       // Multiple games (new feature)
+    price: '', // <-- add price field
   });
 
   const [grounds, setGrounds] = useState([]);
@@ -145,7 +146,8 @@ const Ground = () => {
         images: [], // Will be populated when new images are selected
         imagePreview: ground.imageUrls || [ground.imageUrl], // Show existing images
         fileName: ground.imageUrls ? `${ground.imageUrls.length} images` : '1 image',
-        vendor_id: ground.vendor_id
+        vendor_id: ground.vendor_id,
+        price: ground.price || '', // <-- set price when editing
       });
     } catch (error) {
       setError('Error fetching ground details');
@@ -405,7 +407,9 @@ const Ground = () => {
             formData[key].forEach(amenities => {
               submitData.append('amenities[]', amenities);
             });
-          } else if (key !== 'images') {
+          } else if (key === 'price') { // Append price
+            submitData.append('price', formData.price);
+          } else {
             submitData.append(key, formData[key]);
           }
           
@@ -439,7 +443,8 @@ const Ground = () => {
         images: [],
         imagePreview: null,
         fileName: '',
-        vendor_id: null
+        vendor_id: null,
+        price: '', // Reset price
       });
       setGroundId(null);
       // Refresh grounds list
@@ -510,6 +515,22 @@ const Ground = () => {
               required
               className="form-control"
               placeholder="Enter address"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="price">Price (₹):</label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              value={formData.price}
+              onChange={handleInputChange}
+              required
+              min="0"
+              step="0.01"
+              className="form-control"
+              placeholder="Enter price per hour"
             />
           </div>
 
