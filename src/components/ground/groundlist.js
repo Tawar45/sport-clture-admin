@@ -84,7 +84,6 @@ const GroundList = () => {
     <div className="grounds ground-container">
       <button className='btn btn-primary'  onClick={() => handleAdd()}>Add Ground</button>
       <div className="ground-form-container">
-
         <table className="table mt-4">
           <thead>
             <tr>

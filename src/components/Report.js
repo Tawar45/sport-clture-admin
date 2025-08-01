@@ -6,10 +6,6 @@ import './report.css';
 const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 // Dummy data for demonstration
-const others = [
-  { id: 1, info: "Other Data 1" },
-  { id: 2, info: "Other Data 2" },
-];
 
 const Report = () => {
   const [activeTab, setActiveTab] = useState("bookings");

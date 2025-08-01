@@ -63,6 +63,7 @@ const CourtList = () => {
               <th>Name</th>
               <th>Ground </th>
               <th>Price</th>
+              <th>Games</th>
               <th>Time</th>
               <th>Slots (per day)</th>
               <th>Actions</th>
@@ -75,6 +76,7 @@ const CourtList = () => {
                 <td>{court.name}</td>
                 <td>{court?.ground?.name}</td>
                 <td>{court.price}</td>
+                <td>{court?.games?.name}</td>
                 <td>{court.open_time} - {court.close_time}</td>
                 <td>
                   {court.slotsPerDay &&

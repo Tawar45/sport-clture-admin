@@ -11,18 +11,7 @@ const Sidebar = ({ expanded }) => {
 
   return (
     <aside className={`sidebar adminlte-sidebar${expanded ? '' : ' collapsed'}`}>
-      {/* Debug element */}
-      {/* <div style={{ 
-        position: 'absolute', 
-        top: '10px', 
-        left: '10px', 
-        background: 'yellow', 
-        color: 'black', 
-        padding: '5px',
-        zIndex: 9999,
-        fontSize: '12px'
-      }}></div> */}
-      
+     
       {expanded && (
         <div className="user-panel">
           <div className="image">
@@ -129,7 +118,7 @@ const Sidebar = ({ expanded }) => {
               </Link>
             </li>
             <li>
-              <Link to="/ground">
+              <Link to="/groundlist">
                 <i className="fas fa-map-marker-alt"></i> {expanded && <span>Ground</span>}
               </Link>
             </li>
@@ -138,6 +127,26 @@ const Sidebar = ({ expanded }) => {
                 <i className="fas fa-basketball-ball"></i> {expanded && <span>Court</span>}
               </Link>
             </li>
+            <li>
+            <Link to="/bookinglist">
+              <i className="fas fa-calendar-check"></i> {expanded && <span>Booking</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/cash-collection">
+              <i className="fas fa-money-bill-wave"></i> {expanded && <span>Cash Collection</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/settlement">
+              <i className="fas fa-handshake"></i> {expanded && <span>Settlement</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/report">
+              <i className="fas fa-chart-bar"></i> {expanded && <span>Reports</span>}
+            </Link>
+          </li>
             <li>
             <Link to="/settings">
               <i className="fas fa-cog"></i> {expanded && <span>Settings</span>}

@@ -11,9 +11,34 @@ const Ground = () => {
   const [usertype, setUsertype] = useState(user.usertype);
   const [usertypeList, setUsertypeList] = useState('vendor');
   const openTime = [
-    '08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'
-  ];
+    { label: '12:00 AM', value: 1 },
+    { label: '1:00 AM', value: 2 },
+    { label: '2:00 AM', value: 3 },
+    { label: '3:00 AM', value: 4 },
+    { label: '4:00 AM', value: 5 },
+    { label: '5:00 AM', value: 6 },
+    { label: '6:00 AM', value: 7 },
+    { label: '7:00 AM', value: 8 },
+    { label: '8:00 AM', value: 9 },
+    { label: '9:00 AM', value: 10 },
+    { label: '10:00 AM',value: 11 },
+    { label: '11:00 AM',value: 12 },
+    { label: '12:00 PM',value: 13 },
+    { label: '1:00 PM', value: 14 },
+    { label: '2:00 PM', value: 15 },
+    { label: '3:00 PM', value: 16 },
+    { label: '4:00 PM', value: 17 },
+    { label: '5:00 PM', value: 18 },
+    { label: '6:00 PM', value: 19 },
+    { label: '7:00 PM', value: 20 },
+    { label: '8:00 PM', value: 21 },
+    { label: '9:00 PM', value: 22 },
+    { label: '10:00 PM', value: 23 },
+    { label: '11:00 PM', value: 24 },
+  ];    
+
   const closeTime = [...openTime];
+  console.log(openTime,'openTime');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -30,6 +55,7 @@ const Ground = () => {
     vendor_id: null,
     amenities: [],       // Multiple games (new feature)
     price: '', // <-- add price field
+    rules_and_guidelines: '',
   });
 
   const [grounds, setGrounds] = useState([]);
@@ -46,7 +72,8 @@ const Ground = () => {
   const statusOptions = ['active', 'inactive', 'maintenance'];
 
   const timeToMinutes = (t) => {
-    const [h, m] = t.split(":").map(Number);
+    console.log(t,'t');
+    const [h, m] = t.label.split(":").map(Number);
     return h * 60 + m;
   };
   // ✅ Fetch grounds on mount
@@ -148,6 +175,7 @@ const Ground = () => {
         fileName: ground.imageUrls ? `${ground.imageUrls.length} images` : '1 image',
         vendor_id: ground.vendor_id,
         price: ground.price || '', // <-- set price when editing
+        rules_and_guidelines: ground.rules_and_guidelines || '',
       });
     } catch (error) {
       setError('Error fetching ground details');
@@ -201,10 +229,21 @@ const Ground = () => {
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      // If opening time changes, reset closing time
+      if (name === "openTime") {
+        return {
+          ...prev,
+          openTime: value,
+          closeTime: "", // reset closing time
+        };
+      }
+      // Otherwise, just update the changed field
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
   };
 
   // Select all games
@@ -445,7 +484,8 @@ const Ground = () => {
         fileName: '',
         vendor_id: null,
         price: '', // Reset price
-      });
+        rules_and_guidelines: '',
+      });     
       setGroundId(null);
       // Refresh grounds list
       setUpdateMessage(`Ground ${groundId ? 'updated' : 'added'} successfully!`);
@@ -651,8 +691,8 @@ const Ground = () => {
             >
               <option value="">-- Select Opening Time --</option>
               {openTime.map(time => (
-                <option key={time} value={time}>
-                  {time}
+                <option key={time.value} value={time.value}>
+                  {time.label}
                 </option>
               ))}
             </select>
@@ -668,16 +708,16 @@ const Ground = () => {
               className="form-control"
               disabled={!formData.openTime} // Disable if no openTime
             >
-              <option value="">-- Select Closing Time --</option>
-              {/* Only show times at least 1 hour after openTime */}
-              {closeTime.filter(time => {
-                if (!formData.openTime) return true;
-                return timeToMinutes(time) - timeToMinutes(formData.openTime) >= 60;
-              }).map(time => (
-                <option key={time} value={time}>
-                  {time}
-                </option>
-              ))}
+        <option value="">-- Select Closing Time --</option>
+        {openTime.map(time => {
+          // Disable if value is less than or equal to selected opening time
+          const disabled = formData.openTime ? time.value <= Number(formData.openTime) : false;
+          return (
+            <option key={time.value} value={time.value} disabled={disabled}>
+              {time.label}
+            </option>
+          );
+        })}
             </select>
           </div>
           {usertype === 'admin' ? (
@@ -719,6 +759,19 @@ const Ground = () => {
               className="form-control"
               rows="4"
               placeholder="Enter description"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="rules_and_guidelines">Rules and Guidelines:</label>
+            <textarea
+              id="rules_and_guidelines"
+              name="rules_and_guidelines"
+              value={formData.rules_and_guidelines} 
+              onChange={handleInputChange}
+              required
+              className="form-control"
+              rows="4"
+              placeholder="Enter rules and guidelines"
             />
           </div>
           <div className="form-group">
