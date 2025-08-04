@@ -23,7 +23,7 @@ const Ground = () => {
     { label: '9:00 AM', value: 10 },
     { label: '10:00 AM',value: 11 },
     { label: '11:00 AM',value: 12 },
-    { label: '12:00 PM',value: 13 },
+    { label: '12:00 PM', value: 13 },
     { label: '1:00 PM', value: 14 },
     { label: '2:00 PM', value: 15 },
     { label: '3:00 PM', value: 16 },
