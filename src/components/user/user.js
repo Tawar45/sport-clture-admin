@@ -194,18 +194,13 @@ const User = () => {
                   <div className="alert alert-success">{updateMessage}</div>
                 )}
 
-                <div className=" d-flex ">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading}
-                    style={{
+
+                <div className=" d-flex">
+                  <button type="submit" className="btn btn-primary" disabled={loading} style={{
                       width: "auto",
                       padding: "8px 12px",
                       fontSize: "1rem",
-                    
-                    }}
-                  >
+ }}>
                     {loading ? "Processing..." : "Add User"}
                   </button>
                 </div>
