@@ -82,7 +82,21 @@ const GroundList = () => {
 
   return (
     <div className="grounds ground-container">
-      <button className='btn btn-primary'  onClick={() => handleAdd()}>Add Ground</button>
+      {/* self */}
+      <div className="d-flex align-item-center">
+        <button
+          className="btn btn-primary"
+          onClick={() => handleAdd()}
+          style={{
+            width: "auto",
+            padding: "8px 12px",
+            fontSize: "1rem",
+          }}
+        >
+          Add Ground
+        </button>
+      </div>
+      {/* self */}
       <div className="ground-form-container">
         <table className="table mt-4">
           <thead>
@@ -109,7 +123,7 @@ const GroundList = () => {
                 </td>
               </tr>
             ) : (
-              grounds.map(ground => (
+              grounds.map((ground) => (
                 <tr key={ground.id}>
                   <td>{ground.id}</td>
                   <td>{ground.name}</td>
@@ -142,10 +156,15 @@ const GroundList = () => {
                   <td>
                     {ground.imageUrls && ground.imageUrls.length > 0 ? (
                       <div className="ground-images">
-                        <img 
-                          src={ground.imageUrls[0]} 
-                          alt={ground.name} 
-                          style={{ width: '50px', height: '50px', objectFit: 'cover', cursor: 'pointer' }} 
+                        <img
+                          src={ground.imageUrls[0]}
+                          alt={ground.name}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            objectFit: "cover",
+                            cursor: "pointer",
+                          }}
                           onClick={() => handleImageClick(ground)}
                         />
                         {ground.imageUrls.length > 1 && (
@@ -158,19 +177,35 @@ const GroundList = () => {
                       <span>No images</span>
                     )}
                   </td>
-                  <td>
-                    <button 
-                      className="btn btn-primary me-2" 
-                      onClick={() => handleEdit(ground)}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="btn btn-danger" 
-                      onClick={() => handleDelete(ground.id)}
-                    >
-                      Delete
-                    </button>
+                  <td className="d-flex align-items-center">
+                    {/* self */}
+                   
+                      {/* self */}
+
+                      <button
+                        className="btn btn-primary me-2"
+                        style={{
+                          width: "80px",
+                          padding: "8px 12px",
+                          fontSize: "1rem",
+                        }}
+                        onClick={() => handleEdit(ground)}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="btn btn-danger"
+                        style={{
+                          width: "80px",
+                          padding: "8px 12px",
+                          fontSize: "1rem",
+                        }}
+                        onClick={() => handleDelete(ground.id)}
+                      >
+                        Delete
+                      </button>
+                  
                   </td>
                 </tr>
               ))
@@ -178,21 +213,25 @@ const GroundList = () => {
           </tbody>
         </table>
       </div>
-
       {/* Image Modal */}
       {showModal && (
         <div className="image-modal-overlay" onClick={closeModal}>
-          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="image-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="image-modal-header">
               <h3>{selectedGroundName} - All Images</h3>
-              <button className="modal-close-btn" onClick={closeModal}>×</button>
+              <button className="modal-close-btn" onClick={closeModal}>
+                ×
+              </button>
             </div>
             <div className="image-modal-body">
               <div className="image-gallery">
                 {selectedImages.map((image, index) => (
                   <div key={index} className="gallery-image-container">
-                    <img 
-                      src={image} 
+                    <img
+                      src={image}
                       alt={`${selectedGroundName} - Image ${index + 1}`}
                       className="gallery-image"
                     />

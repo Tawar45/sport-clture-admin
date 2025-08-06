@@ -55,7 +55,7 @@ export default function CashCollection() {
       </div>
       <div className={styles.summaryRow}>
         <div className={styles.summaryTotal}>
-          <FaRupeeSign style={{color:'#007bff',marginRight:4}}/>
+          <FaRupeeSign style={{ color: "#007bff", marginRight: 4 }} />
           <strong>Total:</strong> ₹{summary.totalAmount.toFixed(2)}
         </div>
         <div className={styles.summaryVendor}>
@@ -65,7 +65,7 @@ export default function CashCollection() {
           Admin (20%): ₹{summary.adminShare.toFixed(2)}
         </div>
       </div>
-      <hr className={styles.divider}/>
+      <hr className={styles.divider} />
       <table className={styles.table}>
         <thead className={styles.thead}>
           <tr>
@@ -83,14 +83,35 @@ export default function CashCollection() {
               <td className={styles.td}>{b.booking_date}</td>
               <td className={styles.td}>₹{parseFloat(b.amount).toFixed(2)}</td>
               <td className={styles.td}>
-                {b.is_cash_collected
-                  ? <span className={`${styles.badge} ${styles.badgeReceived}`}><FaCheckCircle style={{marginRight:4}}/>Received by {b.cash_collected_by}<br/><span style={{fontWeight:400,fontSize:12}}>{new Date(b.cash_collected_at).toLocaleString()}</span></span>
-                  : <span className={`${styles.badge} ${styles.badgePending}`}><FaClock style={{marginRight:4}}/>Pending</span>}
+                {b.is_cash_collected ? (
+                  <span className={`${styles.badge} ${styles.badgeReceived}`}>
+                    <FaCheckCircle style={{ marginRight: 4 }} />
+                    Received by {b.cash_collected_by}
+                    <br />
+                    <span style={{ fontWeight: 400, fontSize: 12 }}>
+                      {new Date(b.cash_collected_at).toLocaleString()}
+                    </span>
+                  </span>
+                ) : (
+                  <span className={`${styles.badge} ${styles.badgePending}`}>
+                    <FaClock style={{ marginRight: 4 }} />
+                    Pending
+                  </span>
+                )}
               </td>
               <td className={styles.td}>
                 {!b.is_cash_collected && (
-                  <button className={styles.button} onClick={()=>handleReceived(b.id)} disabled={updating[b.id]}>
-                    {updating[b.id] ? 'Updating...' : 'Received'}
+                  <button
+                    className={styles.button}
+                    onClick={() => handleReceived(b.id)}
+                    disabled={updating[b.id]}
+                    style={{
+                      width: "auto",
+                      padding: "8px 12px",
+                      fontSize: "1rem",
+                    }}
+                  >
+                    {updating[b.id] ? "Updating..." : "Received"}
                   </button>
                 )}
               </td>

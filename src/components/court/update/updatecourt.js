@@ -164,7 +164,7 @@ const UpdateCourt = () => {
   return (
     <div className="grounds ground-container">
       <div className="ground-form-container">
-        <h2>Edit Court</h2>
+        <h2> Edit Court</h2>
         <form onSubmit={handleSubmit} className="ground-form">
           <div className="form-group">
             <label htmlFor="name">Court Name:</label>

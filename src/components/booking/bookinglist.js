@@ -85,9 +85,14 @@ const BookingList = () => {
     <div className="booking-list-container">
       <div className="booking-header">
         <h1>Booking Management</h1>
-        <button 
+        <button
           className="add-booking-btn"
-          onClick={() => window.location.href = '/add-booking'}
+          onClick={() => (window.location.href = "/add-booking")}
+          style={{
+            width: "auto",
+            padding: "8px 12px",
+            fontSize: "1rem",
+          }}
         >
           Add New Booking
         </button>
@@ -99,10 +104,17 @@ const BookingList = () => {
             <div className="booking-header-card">
               <h3>Booking #{booking.id}</h3>
               <div className="booking-status">
-                <span className={`status-badge ${getStatusColor(booking.status)}`}>
+                <span
+                  className={`status-badge ${getStatusColor(booking.status)}`}
+                >
                   {booking.status}
                 </span>
-                <span className={`payment-badge ${getPaymentStatusColor(booking.payment_status)}`}>
+                <span
+                  className={`payment-badge ${getPaymentStatusColor(
+                    booking.payment_status 
+                
+                  )}`}
+                >
                   {booking.payment_status}
                 </span>
               </div>
@@ -130,7 +142,7 @@ const BookingList = () => {
                 {booking.user_id ? (
                   <span>User ID: {booking.user_id}</span>
                 ) : (
-                  <span>Guest: {booking.guest_name || 'N/A'}</span>
+                  <span>Guest: {booking.guest_name || "N/A"}</span>
                 )}
               </div>
               <div className="detail-item">
@@ -146,20 +158,35 @@ const BookingList = () => {
             </div>
 
             <div className="booking-actions">
-              <button 
+              <button
                 className="action-btn view-btn"
+                style={{
+                  width: "auto",
+                  padding: "8px 12px",
+                  fontSize: "1rem",
+                }}
                 onClick={() => handleViewBooking(booking)}
               >
                 <FaEye /> View
               </button>
-              <button 
+              <button
                 className="action-btn edit-btn"
+                style={{
+                  width: "auto",
+                  padding: "8px 12px",
+                  fontSize: "1rem",
+                }}
                 onClick={() => handleEditBooking(booking)}
               >
                 <FaEdit /> Edit
               </button>
-              <button 
+              <button
                 className="action-btn delete-btn"
+                style={{
+                  width: "auto",
+                  padding: "8px 12px",
+                  fontSize: "1rem",
+                }} 
                 onClick={() => handleDeleteBooking(booking.id)}
               >
                 <FaTrash /> Delete
@@ -181,26 +208,29 @@ const BookingList = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Booking Details</h2>
-              <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
+              <button className="close-btn" onClick={() => setShowModal(false)}>
+                ×
+              </button>
             </div>
             <div className="modal-body">
               <div className="detail-row">
                 <strong>Booking ID:</strong> {selectedBooking.id}
               </div>
               <div className="detail-row">
-                <strong>User:</strong> 
-                { selectedBooking.user_id ? 
-                  `User ID: ${selectedBooking.user_id}` : 
-                  `Guest: ${selectedBooking.guest_name || 'N/A'}`
-                }
+                <strong>User:</strong>
+                {selectedBooking.user_id
+                  ? `User ID: ${selectedBooking.user_id}`
+                  : `Guest: ${selectedBooking.guest_name || "N/A"}`}
               </div>
               {!selectedBooking.user_id && (
                 <>
                   <div className="detail-row">
-                    <strong>Guest Email:</strong> {selectedBooking.guest_email || 'N/A'}
+                    <strong>Guest Email:</strong>{" "}
+                    {selectedBooking.guest_email || "N/A"}
                   </div>
                   <div className="detail-row">
-                    <strong>Guest Phone:</strong> {selectedBooking.guest_phone || 'N/A'}
+                    <strong>Guest Phone:</strong>{" "}
+                    {selectedBooking.guest_phone || "N/A"}
                   </div>
                 </>
               )}
@@ -211,7 +241,8 @@ const BookingList = () => {
                 <strong>Game Name:</strong> {selectedBooking?.game?.name}
               </div>
               <div className="detail-row">
-                <strong>Date:</strong> {formatDate(selectedBooking.booking_date)}
+                <strong>Date:</strong>{" "}
+                {formatDate(selectedBooking.booking_date)}
               </div>
               <div className="detail-row">
                 <strong>Slot:</strong> {selectedBooking.slot}
@@ -223,28 +254,38 @@ const BookingList = () => {
                 <strong>Amount:</strong> ₹{selectedBooking.amount}
               </div>
               <div className="detail-row">
-                <strong>Payment Status:</strong> 
-                <span className={`status-badge ${getPaymentStatusColor(selectedBooking.payment_status)}`}>
+                <strong>Payment Status:</strong>
+                <span
+                  className={`status-badge ${getPaymentStatusColor(
+                    selectedBooking.payment_status
+                  )}`}
+                >
                   {selectedBooking.payment_status}
                 </span>
               </div>
               <div className="detail-row">
-                <strong>Payment Method:</strong> {selectedBooking.payment_method || 'N/A'}
+                <strong>Payment Method:</strong>{" "}
+                {selectedBooking.payment_method || "N/A"}
               </div>
               <div className="detail-row">
-                <strong>Status:</strong> 
-                <span className={`status-badge ${getStatusColor(selectedBooking.status)}`}>
+                <strong>Status:</strong>
+                <span
+                  className={`status-badge ${getStatusColor(
+                    selectedBooking.status
+                  )}`}
+                >
                   {selectedBooking.status}
                 </span>
               </div>
               {selectedBooking.payment_reference && (
                 <div className="detail-row">
-                  <strong>Payment Reference:</strong> {selectedBooking.payment_reference}
+                  <strong>Payment Reference:</strong>{" "}
+                  {selectedBooking.payment_reference}
                 </div>
               )}
             </div>
             <div className="modal-footer">
-              <button 
+              <button
                 className="edit-btn"
                 onClick={() => {
                   setShowModal(false);
@@ -253,10 +294,7 @@ const BookingList = () => {
               >
                 Edit Booking
               </button>
-              <button 
-                className="close-btn"
-                onClick={() => setShowModal(false)}
-              >
+              <button className="close-btn" onClick={() => setShowModal(false)}>
                 Close
               </button>
             </div>

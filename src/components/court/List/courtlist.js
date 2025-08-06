@@ -55,7 +55,19 @@ const CourtList = () => {
     <div className="grounds ground-container">
       <div className="ground-form-container">
         <h3>Manage Courts</h3>
-        <button className="btn btn-primary" onClick={handleAddCourt}>Add Court</button>
+        <div className="d-flex ">
+          <button
+            className="btn btn-primary"
+            onClick={handleAddCourt}
+            style={{
+              width: "auto",
+              padding: "8px 12px",
+              fontSize: "1rem",
+            }}
+          >
+            Add Court
+          </button>
+        </div>
         <table className="table mt-4">
           <thead>
             <tr>
@@ -70,45 +82,60 @@ const CourtList = () => {
             </tr>
           </thead>
           <tbody>
-            {courts.map(court => (
+            {courts.map((court) => (
               <tr key={court.id}>
                 <td>{court.id}</td>
                 <td>{court.name}</td>
                 <td>{court?.ground?.name}</td>
                 <td>{court.price}</td>
                 <td>{court?.games?.name}</td>
-                <td>{court.open_time} - {court.close_time}</td>
+                <td>
+                  {court.open_time} - {court.close_time}
+                </td>
                 <td>
                   {court.slotsPerDay &&
                     Object.entries(court.slotsPerDay).map(([day, slots]) =>
                       slots.length > 0 ? (
                         <div key={day}>
-                          <strong>{day}:</strong> {slots.join(', ')}
+                          <strong>{day}:</strong> {slots.join(", ")}
                         </div>
                       ) : null
-                    )
-                  }
+                    )}
                 </td>
-                <td>
-                  <button 
-                    className="btn btn-primary me-2" 
-                    onClick={() => handleEdit(court)}
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    className="btn btn-danger" 
-                    onClick={() => handleDelete(court.id)}
-                  >
-                    Delete
-                  </button>
+                <td className="align-middle">
+                  <div className="d-flex justify-content-center align-items-center">
+                    <button
+                      className="btn btn-primary me-2"
+                      style={{
+                        width: "80px",
+                        padding: "8px 12px",
+                        fontSize: "1rem",
+                      }}
+                      onClick={() => handleEdit(court)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      style={{
+                        width: "80px",
+                        padding: "8px 12px",
+                        fontSize: "1rem",
+                      }}
+                      onClick={() => handleDelete(court.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {error && <div className="error-message">{error}</div>}
-        {updateMessage && <div className="success-message">{updateMessage}</div>}
+        {updateMessage && (
+          <div className="success-message">{updateMessage}</div>
+        )}
       </div>
     </div>
   );

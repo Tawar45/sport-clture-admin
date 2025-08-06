@@ -189,10 +189,9 @@ const Games = () => {
     <div className="games game-container">
       {/* <h3>Manage Games</h3> */}
       <div className="game-form-container">
-        <h2>{gameId ? 'Update Game' : 'Add New Game'}</h2>
-        
+        <h2>{gameId ? "Update Game" : "Add New Game"}</h2>
         <form onSubmit={handleSubmit} className="game-form">
-          <div className="form-group">
+          <div className="form-group col-8">
             <label htmlFor="name">Game Name:</label>
             <input
               type="text"
@@ -204,7 +203,7 @@ const Games = () => {
               className="form-control"
             />
           </div>
-          <div className="form-group">
+          <div className="form-group col-8">
             <label htmlFor="name">Description:</label>
             <textarea
               id="description"
@@ -214,10 +213,10 @@ const Games = () => {
               required
               className="form-control"
               rows={4} // optional: sets height
-             />
+            />
           </div>
 
-          <div className="form-group">
+          <div className="form-group col-8">
             <label htmlFor="image">Game Image:</label>
             <input
               type="file"
@@ -230,10 +229,10 @@ const Games = () => {
               {...(!gameId && { required: true })}
             />
             {formData.fileName && (
-              <div className="file-info">
+              <div className="file-info ">
                 <span>{formData.fileName}</span>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleClearImage}
                   className="clear-btn"
                 >
@@ -245,17 +244,27 @@ const Games = () => {
 
           {formData.imagePreview && (
             <div className="image-preview">
-              <img src={formData.imagePreview} alt="Preview" width={100} height={100}/>
+              <img
+                src={formData.imagePreview}
+                alt="Preview"
+                width={100}
+                height={100}
+              />
             </div>
           )}
 
           {error && <div className="error-message">{error}</div>}
 
-          <button 
+          <button
             type="submit"
-            className="btn btn-primary" 
-            disabled={loading || !formData.name || (!formData.image && !formData.imagePreview && !gameId)}>
-            {loading ? 'Adding...' : (gameId ? 'Update Game' : 'Add Game')}
+            className="btn btn-primary"
+            disabled={
+              loading ||
+              !formData.name ||
+              (!formData.image && !formData.imagePreview && !gameId)
+            }
+          >
+            {loading ? "Adding..." : gameId ? "Update Game" : "Add Game"}
           </button>
         </form>
         <table className="table">
@@ -268,14 +277,43 @@ const Games = () => {
             </tr>
           </thead>
           <tbody>
-            {games.map(game => (
+            {games.map((game) => (
               <tr key={game.id}>
-                <th >{game.id}</th>
+                <th>{game.id}</th>
                 <td>{game.name}</td>
-                <td><img src={game.imageUrl} alt={game.name} style={{ width: '100px', height: '100px' }} /></td> 
                 <td>
-                  <button className="btn btn-primary me-4" onClick={() => handleEdit(game)}>Edit</button>
-                  <button className="btn btn-danger" onClick={() => handleDelete(game.id)}>Delete</button>  
+                  <img
+                    src={game.imageUrl}
+                    alt={game.name}
+                    style={{ width: "100px", height: "100px" }}
+                  />
+                </td>
+
+                <td className="align-middle">
+                  <div class="d-flex justify-content-center align-items-center">
+                    <button
+                      className="btn btn-primary me-4 "
+                      style={{
+                        width: "80px",
+                        padding: "8px 12px",
+                        fontSize: "1rem",
+                      }}
+                      onClick={() => handleEdit(game)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      style={{
+                        width: "80px",
+                        padding: "8px 12px",
+                        fontSize: "1rem",
+                      }}
+                      onClick={() => handleDelete(game.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

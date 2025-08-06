@@ -1,10 +1,13 @@
 .card {
-  max-width: 900px;
-  margin: 32px auto;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 32px;
+  
+  
+      margin: 32px 32px 32px 32px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 32px;
+    
+    
 }
 
 .header {

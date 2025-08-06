@@ -134,7 +134,7 @@ const User = () => {
   };
 
   return (
-      <div className="user-container user-container-form">
+    <div className="user-container user-container-form">
       <div className="row">
         <div className="col-md-12">
           <div className="card">
@@ -166,7 +166,7 @@ const User = () => {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">Password{!editId && '*'}</label>
+                  <label className="form-label">Password{!editId && "*"}</label>
                   <input
                     type="password"
                     className="form-control"
@@ -190,11 +190,24 @@ const User = () => {
                 </div>
 
                 {error && <div className="alert alert-danger">{error}</div>}
-                {updateMessage && <div className="alert alert-success">{updateMessage}</div>}
+                {updateMessage && (
+                  <div className="alert alert-success">{updateMessage}</div>
+                )}
 
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Processing...' : "Add User"} 
-                </button>
+                <div className=" d-flex ">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={loading}
+                    style={{
+                      width: "auto",
+                      padding: "8px 12px",
+                      fontSize: "1rem",
+                    }}
+                  >
+                    {loading ? "Processing..." : "Add User"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
@@ -203,7 +216,7 @@ const User = () => {
           <div className="card">
             <div className="card-body">
               <h5 className="card-title">User List</h5>
-              
+
               <div className="mb-3">
                 <input
                   type="text"
@@ -226,44 +239,62 @@ const User = () => {
                       <th>Actions</th>
                     </tr>
                   </thead>
-                    <tbody>
+                  <tbody>
                     {users
-                      .filter(user => 
-                        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                      .filter(
+                        (user) =>
+                          user.username
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
+                          user.email
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase())
                       )
-                      .map(user => (
+                      .map((user) => (
                         <tr key={user.id}>
                           <td>{user.id}</td>
                           <td>{user.username}</td>
                           <td>{user.email}</td>
-                          <td>{user.phone_number || '-'}</td>
+                          <td>{user.phone_number || "-"}</td>
                           <td>
                             <div className="form-check form-switch">
                               <input
                                 className="form-check-input"
                                 type="checkbox"
                                 checked={user.status}
-                                onChange={() => handleToggleStatus(user.id, user.status)}
+                                onChange={() =>
+                                  handleToggleStatus(user.id, user.status)
+                                }
                               />
                             </div>
                           </td>
-                          <td>
-                            <button 
-                              className="btn btn-sm btn-primary me-2"
+
+                          <td className="d-flex align-items-center">
+                            <button
+                              className="btn btn-primary me-2"
+                              style={{
+                                width: "80px",
+                                padding: "8px 12px",
+                                fontSize: "1rem",
+                              }}
                               onClick={() => handleEdit(user.id)}
                             >
                               Edit
                             </button>
-                            <button 
+                            <button
                               className="btn btn-sm btn-danger"
+                              style={{
+                                width: "80px",
+                                padding: "8px 12px",
+                                fontSize: "1rem",
+                              }}
                               onClick={() => handleDelete(user.id)}
                             >
                               Delete
                             </button>
                           </td>
                         </tr>
-                    ))}
+                      ))}
                   </tbody>
                 </table>
               </div>
