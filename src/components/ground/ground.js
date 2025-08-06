@@ -38,7 +38,6 @@ const Ground = () => {
   ];    
 
   const closeTime = [...openTime];
-  console.log(openTime,'openTime');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -71,11 +70,11 @@ const Ground = () => {
   // Status options
   const statusOptions = ['active', 'inactive', 'maintenance'];
 
-  const timeToMinutes = (t) => {
-    console.log(t,'t');
-    const [h, m] = t.label.split(":").map(Number);
-    return h * 60 + m;
-  };
+  // const timeToMinutes = (t) => {
+  //   console.log(t,'t');
+  //   const [h, m] = t.label.split(":").map(Number);
+  //   return h * 60 + m;
+  // };
   // ✅ Fetch grounds on mount
   useEffect(() => {
     fetchVendors();
@@ -708,16 +707,16 @@ const Ground = () => {
               className="form-control"
               disabled={!formData.openTime} // Disable if no openTime
             >
-        <option value="">-- Select Closing Time --</option>
-        {openTime.map(time => {
-          // Disable if value is less than or equal to selected opening time
-          const disabled = formData.openTime ? time.value <= Number(formData.openTime) : false;
-          return (
-            <option key={time.value} value={time.value} disabled={disabled}>
-              {time.label}
-            </option>
-          );
-        })}
+            <option value="">-- Select Closing Time --</option>
+              {openTime.map(time => {
+                // Disable if value is less than or equal to selected opening time
+                const disabled = formData.openTime ? time.value <= Number(formData.openTime) : false;
+                return (
+                  <option key={time.value} value={time.value} disabled={disabled}>
+                    {time.label}
+                  </option>
+                );
+              })}
             </select>
           </div>
           {usertype === 'admin' ? (

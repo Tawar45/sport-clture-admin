@@ -22,9 +22,34 @@ const AddCourt = () => {
     games_id: '',
   });
 
-  
-  const openTime = ['08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
-  const closeTime = ['08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
+  const openTime = [
+    { label: '12 AM', value: 1 },
+    { label: '1 AM', value: 2 },
+    { label: '2 AM', value: 3 },
+    { label: '3 AM', value: 4 },
+    { label: '4 AM', value: 5 },
+    { label: '5 AM', value: 6 },
+    { label: '6 AM', value: 7 },
+    { label: '7 AM', value: 8 },
+    { label: '8 AM', value: 9 },
+    { label: '9 AM', value: 10 },
+    { label: '10 AM',value: 11 },
+    { label: '11 AM',value: 12 },
+    { label: '12 PM', value: 13 },
+    { label: '1 PM', value: 14 },
+    { label: '2 PM', value: 15 },
+    { label: '3 PM', value: 16 },
+    { label: '4 PM', value: 17 },
+    { label: '5 PM', value: 18 },
+    { label: '6 PM', value: 19 },
+    { label: '7 PM', value: 20 },
+    { label: '8 PM', value: 21 },
+    { label: '9 PM', value: 22 },
+    { label: '10 PM', value: 23 },
+    { label: '11 PM', value: 24 },
+  ];    
+  const closeTime = [...openTime];
+
   const day = [
     'Monday',
     'Tuesday',
@@ -50,30 +75,24 @@ const AddCourt = () => {
   });
   const [games, setGames] = useState([]);
   const [gameCount, setGameCount] = useState(0);
-
-  // Helper: Convert time string to minutes
-  const timeToMinutes = (t) => {
-    // Handle time format without colons: "08", "09", etc.
-    const hours = parseInt(t);
-    return hours * 60;
-  };
-  
-  // Helper: Convert minutes to time string (just hour)
-  const minutesToTime = (min) => {
-    const h = String(Math.floor(min / 60)).padStart(2, '0');
-    return h; // Return just the hour number
-  };
-  
-  // Generate 1-hour slots between open and close
+   // Generate 1-hour slots between open and close
   const getSlots = (open, close) => {
     if (!open || !close) return [];
     let slots = [];
-    let start = timeToMinutes(open);
-    let end = timeToMinutes(close);
-    for (let t = start; t + 60 <= end; t += 60) {
-      const startTime = minutesToTime(t);
-      const endTime = minutesToTime(t + 60);
-      slots.push(`${startTime} - ${endTime}`);
+    let start = Number(open);
+    let end = Number(close);
+  
+    for (let t = start; t < end; t++) {
+      const startObj = openTime.find(time => time.value === t);
+      const endObj = openTime.find(time => time.value === t + 1);
+      if (startObj && endObj) {
+        slots.push({
+          startLabel: startObj.label,
+          startValue: startObj.value,
+          endLabel: endObj.label,
+          endValue: endObj.value
+        });
+      }
     }
     return slots;
   };
@@ -142,30 +161,46 @@ const AddCourt = () => {
     }));
   };
 
-  // Handle slot selection with better state management
   const handleSlotChange = (slot, dayName) => {
-    console.log('handleSlotChange called:', slot, dayName); // Debug log
     setSlotsPerDay(prev => {
       const updated = { ...prev };
       const currentSlots = updated[dayName] || [];
-      
-      console.log('Current slots for', dayName, ':', currentSlots); // Debug log
-      
-      if (currentSlots.includes(slot)) {
-        // Remove slot if already selected
-        updated[dayName] = currentSlots.filter(s => s !== slot);
-        console.log('Removing slot:', slot); // Debug log
+      // Check if slot already exists (by value)
+      const exists = currentSlots.some(
+        s => s.startValue === slot.startValue && s.endValue === slot.endValue
+      );
+      if (exists) {
+        updated[dayName] = currentSlots.filter(
+          s => !(s.startValue === slot.startValue && s.endValue === slot.endValue)
+        );
       } else {
-        // Add slot if not selected
         updated[dayName] = [...currentSlots, slot];
-        console.log('Adding slot:', slot); // Debug log
       }
-      
-      console.log('Updated slots for', dayName, ':', updated[dayName]); // Debug log
       return updated;
     });
   };
-
+  // Handle slot selection with better state management
+  // const handleSlotChange = (slot, dayName) => {
+  //   console.log(slot,'slot');
+  //   setSlotsPerDay(prev => {
+      
+  //     const updated = { ...prev };
+  //     const currentSlots = updated[dayName] || [];
+        
+  //     if (currentSlots.includes(slot)) {
+  //       // Remove slot if already selected
+  //       updated[dayName] = currentSlots.filter(s => s !== slot);
+  //       console.log('Removing slot:', slot); // Debug log
+  //     } else {
+  //       // Add slot if not selected
+  //       updated[dayName] = [...currentSlots, slot];
+  //       console.log('Adding slot:', slot); // Debug log
+  //     }
+      
+  //     console.log('Updated slots for', dayName, ':', updated[dayName]); // Debug log
+  //     return updated;
+  //   });
+  // };
   // Force re-render when slotsPerDay changes
   useEffect(() => {
     console.log('slotsPerDay updated:', slotsPerDay);
@@ -180,9 +215,18 @@ const AddCourt = () => {
 
     try {
       // Build the data object
+      const transformedSlotsPerDay = {};
+      Object.keys(slotsPerDay).forEach(day => {
+        transformedSlotsPerDay[day] = slotsPerDay[day].map(slot => ({
+          day:day,
+          slot: slot.startValue +'-'+ slot.endValue,
+        }));
+      });
+
+     
       const submitData = {
         ...formData,
-        slotsPerDay, // include the slots per day selection
+        slotsPerDay: transformedSlotsPerDay, // only startValue and endValue
       };
       const url = `${API_URL}/court/add`;
       const method = 'POST';
@@ -303,16 +347,16 @@ const AddCourt = () => {
               value={formData.openTime}
               onChange={handleInputChange}
               className="form-control"
-              required
             >
               <option value="">-- Select Opening Time --</option>
               {openTime.map(time => (
-                <option key={time} value={time}>
-                  {time}
+                <option key={time.value} value={time.value}>
+                  {time.label}
                 </option>
               ))}
             </select>
           </div>
+
 
           <div className="form-group">
             <label htmlFor="closeTime">Closing Time:</label>
@@ -322,18 +366,18 @@ const AddCourt = () => {
               value={formData.closeTime}
               onChange={handleInputChange}
               className="form-control"
-              disabled={!formData.openTime}
-              required
+              disabled={!formData.openTime} // Disable if no openTime
             >
-              <option value="">-- Select Closing Time --</option>
-              {closeTime.filter(time => {
-                if (!formData.openTime) return true;
-                return timeToMinutes(time) - timeToMinutes(formData.openTime) >= 60;
-              }).map(time => (
-                <option key={time} value={time}>
-                  {time}
+            <option value="">-- Select Closing Time --</option>
+            {openTime.map(time => {
+              // Disable if value is less than or equal to selected opening time
+              const disabled = formData.openTime ? time.value <= Number(formData.openTime) : false;
+              return (
+                <option key={time.value} value={time.value} disabled={disabled}>
+                  {time.label}
                 </option>
-              ))}
+              );
+            })}
             </select>
           </div>
 
@@ -376,26 +420,28 @@ const AddCourt = () => {
                   ) : (
                     <div className="slots-grid">
                       {getSlots(formData.openTime, formData.closeTime).map(slot => {
+                        const slotKey = `${slot.startValue}-${slot.endValue}`;
                         const currentSlots = slotsPerDay[activeTab] || [];
-                        const isChecked = currentSlots.includes(slot);
-                        
-                        console.log(`Slot: ${slot}, Day: ${activeTab}, Checked: ${isChecked}`); // Debug log
-                        
+                        // Use JSON.stringify for object comparison
+                        const isChecked = currentSlots.some(
+                          s => s.startValue === slot.startValue && s.endValue === slot.endValue
+                        );
+
                         return (
-                          <div key={`${activeTab}-${slot}`} className="slot-item">
+                          <div key={`${activeTab}-${slotKey}`} className="slot-item">
                             <input
                               type="checkbox"
                               className="slot-checkbox"
-                              id={`slot-${activeTab}-${slot}`}
+                              id={`slot-${activeTab}-${slotKey}`}
                               checked={isChecked}
                               onChange={() => handleSlotChange(slot, activeTab)}
                             />
-                            <label 
-                              className="slot-label" 
-                              htmlFor={`slot-${activeTab}-${slot}`}
+                            <label
+                              className="slot-label"
+                              htmlFor={`slot-${activeTab}-${slotKey}`}
                               onClick={() => handleSlotChange(slot, activeTab)}
                             >
-                              {slot}
+                              {slot.startLabel} - {slot.endLabel}
                             </label>
                           </div>
                         );
