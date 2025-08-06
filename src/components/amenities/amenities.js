@@ -100,7 +100,7 @@ const Amenities = () => {
               <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter amenities Name">
               </input>
             </div>
-            <div className="col-4">
+            <div className='col-4'>
               {/* <button type="submit" className="btn btn-primary w-auto p-2"> Add City</button> */}
               <button type="submit" className="btn btn-primary me-2" style={{ width: 'auto', padding: '8px 8px', fontSize: '1rem' }} disabled={loading}>
                   {editId ? 'Update' : 'Add'} Amenities 

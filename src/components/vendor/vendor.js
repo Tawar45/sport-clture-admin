@@ -164,8 +164,8 @@ const Vendor = () => {
               <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter Your Number">
             </input>
             </div>
-            <div class="col-2" >
-            <button type="submit" className="btn btn-primary me-2" style={{ width: 'auto', padding: '10px 12px', fontSize: '1rem' }}>Add Vender</button>
+            <div >
+            <button type="submit" className="btn btn-primary me-2" style={{ width: 'auto', padding: '10px 12px', fontSize: '1rem',  float:'right'}}>Add Vender</button>
          </div>
             </form>
              {/*sir ka  */}
