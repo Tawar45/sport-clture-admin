@@ -177,35 +177,31 @@ const GroundList = () => {
                       <span>No images</span>
                     )}
                   </td>
+
                   <td className="d-flex align-items-center">
-                    {/* self */}
-                   
-                      {/* self */}
+                    <button
+                      className="btn btn-primary me-2"
+                      style={{
+                        width: "80px",
+                        padding: "8px 12px",
+                        fontSize: "1rem",
+                      }}
+                      onClick={() => handleEdit(ground)}
+                    >
+                      Edit
+                    </button>
 
-                      <button
-                        className="btn btn-primary me-2"
-                        style={{
-                          width: "80px",
-                          padding: "8px 12px",
-                          fontSize: "1rem",
-                        }}
-                        onClick={() => handleEdit(ground)}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="btn btn-danger"
-                        style={{
-                          width: "80px",
-                          padding: "8px 12px",
-                          fontSize: "1rem",
-                        }}
-                        onClick={() => handleDelete(ground.id)}
-                      >
-                        Delete
-                      </button>
-                  
+                    <button
+                      className="btn btn-danger"
+                      style={{
+                        width: "80px",
+                        padding: "8px 12px",
+                        fontSize: "1rem",
+                      }}
+                      onClick={() => handleDelete(ground.id)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))

@@ -203,6 +203,7 @@ const User = () => {
                       width: "auto",
                       padding: "8px 12px",
                       fontSize: "1rem",
+                    
                     }}
                   >
                     {loading ? "Processing..." : "Add User"}

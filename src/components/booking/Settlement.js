@@ -86,8 +86,8 @@ export default function Settlement() {
               <td className={styles.td}>₹{parseFloat(b.amount).toFixed(2)}</td>
               <td className={styles.td}>
                 {b.admin_cash_received
-                  ? <span className={`${styles.badge} ${styles.badgeReceived}`}><FaCheckCircle style={{marginRight:4}}/>Received<br/><span style={{fontWeight:400,fontSize:12}}>{b.admin_cash_received_at ? new Date(b.admin_cash_received_at).toLocaleString() : ''}</span></span>
-                  : <span className={`${styles.badge} ${styles.badgePending}`}><FaClock style={{marginRight:4}}/>Pending</span>}
+                  ? <span className={`${styles.badge} ${styles.badgeReceived} `}><FaCheckCircle style={{marginRight:4}}/>Received<br/><span style={{fontWeight:400,fontSize:12}}>{b.admin_cash_received_at ? new Date(b.admin_cash_received_at).toLocaleString() : ''}</span></span>
+                  : <span className={`${styles.badge} ${styles.badgePending} `}><FaClock style={{marginRight:4}}/>Pending</span>}
               </td>
               <td className={styles.td}>
                 {(!b.admin_cash_received || b.admin_cash_received === null) && (

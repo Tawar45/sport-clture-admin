@@ -83,9 +83,9 @@
 
 .badge {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-weight: 600;
+  padding:8px 14px;
+  border-radius:30px;
+  font-weight: 700;
   font-size: 13px;
   color: #fff;
 }
