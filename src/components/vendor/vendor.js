@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './vendor.css';
 import { useNavigate } from 'react-router-dom';
+import { GiJug } from 'react-icons/gi';
+import { BsJustify } from 'react-icons/bs';
 const API_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const Vendor = () => {
@@ -141,9 +143,35 @@ const Vendor = () => {
           <div className="card">
             <div className="card-body">
               <h5 className="card-title">{editId ? 'Edit' : 'Add'} Vendor</h5>
-              <form onSubmit={handleSubmit}>
+              {/* self */}
+          <form className="row g-3">
+            <div className="col-6" >
+              <label for="exampleInputEmail1" className="form-label">Username*</label>
+              <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter Your Name"></input>
+            </div>
+            <div className="col-6" >
+              <label for="exampleInputEmail1" className="form-label">Email*</label>
+              <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter Your Email"></input>
+            </div>
+            <div className="col-6">
+              <label for="exampleInputEmail1" className="form-label">Password{!editId && '*'}</label>
+              <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter Your password">
+              </input>
+            </div>
+             
+            <div className="col-6">
+            <label for="exampleInputEmail1" className="form-label">Phone Number</label>
+              <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter Your Number">
+            </input>
+            </div>
+            <div class="col-2" >
+            <button type="submit" className="btn btn-primary me-2" style={{ width: 'auto', padding: '10px 12px', fontSize: '1rem' }}>Add Vender</button>
+         </div>
+            </form>
+             {/*sir ka  */}
+              {/* <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                  <label className="form-label">Username*</label>
+                   <label className="form-label">Username*</label>
                   <input
                     type="text"
                     className="form-control"
@@ -155,6 +183,7 @@ const Vendor = () => {
                 </div>
 
                 <div className="mb-3">
+                 
                   <label className="form-label">Email*</label>
                   <input
                     type="email"
@@ -167,6 +196,7 @@ const Vendor = () => {
                 </div>
 
                 <div className="mb-3">
+                 
                   <label className="form-label">Password{!editId && '*'}</label>
                   <input
                     type="password"
@@ -179,6 +209,8 @@ const Vendor = () => {
                 </div>
 
                 <div className="mb-3">
+                 
+                
                   <label className="form-label">Phone Number</label>
                   <input
                     type="text"
@@ -196,7 +228,7 @@ const Vendor = () => {
                 <button type="submit" className="btn btn-primary" disabled={loading}>
                   {loading ? 'Processing...' : (editId ? 'Update' : 'Add')} Vendor
                 </button>
-              </form>
+              </form> */}
             </div>
           </div>
         </div>
@@ -205,7 +237,7 @@ const Vendor = () => {
             <div className="card-body">
               <h5 className="card-title">Vendor List</h5>
               
-              <div className="mb-3">
+              <div className=" col-8 mb-3">
                 <input
                   type="text"
                   className="form-control"
@@ -249,19 +281,11 @@ const Vendor = () => {
                               />
                             </div>
                           </td>
-                          <td>
-                            <button 
-                              className="btn btn-sm btn-primary me-2"
-                              onClick={() => handleEdit(user.id)}
-                            >
-                              Edit
-                            </button>
-                            <button 
-                              className="btn btn-sm btn-danger"
-                              onClick={() => handleDelete(user.id)}
-                            >
-                              Delete
-                            </button>
+                          <td className="d-flex align-items-center">
+                            <button className="btn btn-primary me-2" style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }}
+                              onClick={() => handleEdit(user.id)} > Edit</button>
+                            <button className="btn btn-danger me-2" style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }}
+                              onClick={() => handleDelete(user.id)}> Delete</button>
                           </td>
                         </tr>
                     ))}
