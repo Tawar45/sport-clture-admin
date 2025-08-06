@@ -273,10 +273,18 @@ const Games = () => {
                 <th >{game.id}</th>
                 <td>{game.name}</td>
                 <td><img src={game.imageUrl} alt={game.name} style={{ width: '100px', height: '100px' }} /></td> 
-                <td>
+                {/* <td>
                   <button className="btn btn-primary me-4" onClick={() => handleEdit(game)}>Edit</button>
                   <button className="btn btn-danger" onClick={() => handleDelete(game.id)}>Delete</button>  
-                </td>
+                </td> */}
+     <td className="d-flex align-items-center">
+              <button className="btn btn-primary me-2" style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }}
+              onClick={() => handleEdit(game)} >Edit </button>
+
+         <button className="btn btn-danger me-2"  style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }}
+         onClick={() => handleDelete(game.id)} > Delete </button>
+    </td>
+
               </tr>
             ))}
           </tbody>

@@ -92,20 +92,39 @@ const City = () => {
   return (
     <div className="city city-container">
       {/* <h3>Manage Cities</h3> */}
-        <form onSubmit={handleSubmit} className="city-form">
-          <div className="mb-3">
-            <label for="exampleInputEmail1" className="form-label">City</label>
+
+
+       <form className="row g-3 align-items-center">
+            <div className="col-12" >
+              <label for="exampleInputEmail1" className="form-label"> City</label>
+            </div>
+            <div className="col-8">
+              <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter City Name">
+              </input>
+            </div>
+            <div className="col-4">
+              {/* <button type="submit" className="btn btn-primary w-auto p-2"> Add City</button> */}
+              <button type="submit" className="btn btn-primary me-2" style={{ width: 'auto', padding: '8px 8px', fontSize: '1rem' }} disabled={loading}>
+                  {editId ? 'Update' : 'Add'} City </button>
+            </div>
+          </form>
+          {/* sir ka */}
+          {/* <form onSubmit={handleSubmit} className="city-form">
+          
+           <div className="mb-3"> 
+             <label for="exampleInputEmail1" className="form-label">City</label>
             <input type="text" className="form-control" id="exampleInputEmail1"  placeholder="Enter city name"
                   value={cityName}
                   onChange={(e) => setCityName(e.target.value)}
                   disabled={loading}/>
           </div>
+           
         {error && <div style={{ color: 'red' }}>{error}</div>}
         {updateMessage && <div style={{ color: 'green' }}>{updateMessage}</div>}
           <button type="submit" className="btn btn-primary" disabled={loading}>
                   {editId ? 'Update' : 'Add'} City
           </button>
-        </form>             
+        </form>              */}
         <table className="table">
               <thead>
                 <tr>
@@ -119,11 +138,20 @@ const City = () => {
                 <tr key={city.id}>
                   <th >{city.id}</th>
                   <td>{city.name}</td>
-                  <td>
-                    <button className="btn btn-primary me-4" onClick={() => handleEdit(city)}>Edit</button>
+                  {/* <td className="d-flex align-items-center">
+                   <button className="btn btn-primary me-3" onClick={() => handleEdit(city)}>Edit</button>
                      
-                    <button className="btn btn-danger" onClick={() => handleDelete(city.id)}>Delete</button>
-                  </td>
+                    <button className="btn btn-danger me-3" onClick={() => handleDelete(city.id)}>Delete</button> 
+                  </td> */}
+
+     <td className="d-flex align-items-center">
+      <button className="btn btn-primary me-2" style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }}
+    onClick={() => handleEdit(city)} >Edit </button>
+
+  <button className="btn btn-danger me-2"  style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }}
+    onClick={() => handleDelete(city.id)} > Delete </button>
+</td>
+
                 </tr>
               ))}
               </tbody>

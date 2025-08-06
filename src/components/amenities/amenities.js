@@ -91,7 +91,24 @@ const Amenities = () => {
   return (
     <div className="city city-container">
       {/* <h3>Manage Cities</h3> */}
-        <form onSubmit={handleSubmit} className="city-form">
+      {/* self */}
+      <form className="row g-3 align-items-center">
+            <div className="col-12" >
+              <label  for="exampleInputEmail1" className="form-label">Amenities</label>
+            </div>
+            <div className="col-8" style={{  padding: '8px 8px', fontSize: '1rem' }}>
+              <input type="text" className="form-control" id="exampleInputEmail1" placeholder="Enter amenities Name">
+              </input>
+            </div>
+            <div className="col-4">
+              {/* <button type="submit" className="btn btn-primary w-auto p-2"> Add City</button> */}
+              <button type="submit" className="btn btn-primary me-2" style={{ width: 'auto', padding: '8px 8px', fontSize: '1rem' }} disabled={loading}>
+                  {editId ? 'Update' : 'Add'} Amenities 
+          </button>
+            </div>
+          </form>
+      {/* sir ka */}
+        {/* <form onSubmit={handleSubmit} className="city-form">
           <div className="mb-3">
             <label for="exampleInputEmail1" className="form-label">Amenities</label>
             <input type="text" className="form-control" id="exampleInputEmail1"  placeholder="Enter amenities name"
@@ -101,10 +118,11 @@ const Amenities = () => {
           </div>
         {error && <div style={{ color: 'red' }}>{error}</div>}
         {updateMessage && <div style={{ color: 'green' }}>{updateMessage}</div>}
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {editId ? 'Update' : 'Add'} Amenities
+          <button type="submit" className="btn btn-primary me-2" style={{ width: 'auto', padding: '10px 12px', fontSize: '1rem' }} disabled={loading}>
+                  {editId ? 'Update' : 'Add'} Amenities 
           </button>
-        </form>             
+
+        </form>              */}
         <table className="table">
               <thead>
                 <tr>
@@ -118,10 +136,12 @@ const Amenities = () => {
                 <tr key={amenities.id}>
                   <th> {amenities.id}</th>
                   <td> {amenities.name}</td>
-                  <td>
-                    <button className="btn btn-primary me-4" onClick={() => handleEdit(amenities)}>Edit</button>
+                  <td className='d-flex align-items-center'>
+                    <button className="btn btn-primary me-2" style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }} 
+                    onClick={() => handleEdit(amenities)}>Edit</button>
                      
-                    <button className="btn btn-danger" onClick={() => handleDelete(amenities.id)}>Delete</button>
+                    <button className="btn btn-danger me-2" style={{ width: '90px', padding: '10px 12px', fontSize: '1rem' }} 
+                    onClick={() => handleDelete(amenities.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
