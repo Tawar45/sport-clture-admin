@@ -258,6 +258,11 @@ const Games = () => {
           <button
             type="submit"
             className="btn btn-primary"
+            style={{
+              width: "auto",
+              padding: "8px 8px",
+              fontSize: "1rem",
+            }}
             disabled={
               loading ||
               !formData.name ||
@@ -292,7 +297,7 @@ const Games = () => {
                     }}
                   />
                 </td>
-                <td className="d-flex align-items-center">
+                <td className="align-middle">
                   <button
                     className="btn btn-primary me-4"
                     style={{
