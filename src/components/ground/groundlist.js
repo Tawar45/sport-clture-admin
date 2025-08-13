@@ -82,8 +82,9 @@ const GroundList = () => {
 
   return (
     <div className="grounds ground-container">
+
       {/* self */}
-      <div className="d-flex align-item-center">
+  <div className="d-flex align-item-center">
         <button
           className="btn btn-primary"
           onClick={() => handleAdd()}
@@ -91,11 +92,12 @@ const GroundList = () => {
             width: "auto",
             padding: "8px 12px",
             fontSize: "1rem",
+            flex:"right",
           }}
         >
           Add Ground
         </button>
-      </div>
+      </div> 
       {/* self */}
       <div className="ground-form-container">
         <table className="table mt-4">
